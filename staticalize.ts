@@ -105,13 +105,7 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
         if (source.host !== host.host) {
           return;
         }
-	let path = normalize(join(outdir, source.pathname));
-	
-	if (path.endsWith("/") || !path.match(/\.\w+/)) {
-	  path = join(path, "index.html");
-	}
-
-	let destpath = path.endsWith("/") || !path.match(/\.\w+/) ? join(path, "index.html") : path;
+        let path = normalize(join(outdir, source.pathname));
 
         yield* buffer.spawn(function* () {
           let response = yield* call(() =>
@@ -119,6 +113,7 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
           );
           if (response.ok) {
             if (response.headers.get("Content-Type")?.includes("html")) {
+              let destpath = join(path, "index.html");
               let content = yield* call(() => response.text());
               let document = new DOMParser().parseFromString(
                 content,
@@ -146,6 +141,7 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
               });
             } else {
               yield* call(async () => {
+                let destpath = path;
                 let destdir = dirname(destpath);
                 await ensureDir(destdir);
                 await Deno.writeFile(destpath, response.body!);

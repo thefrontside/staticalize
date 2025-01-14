@@ -60,7 +60,9 @@ describe("staticalize", () => {
     await expect(content("test/dist/index.html")).resolves.toEqual(
       "<h1>Index</h1>",
     );
-    await expect(content("test/dist/about/index.html")).resolves.toEqual("<h1>About</h1>");
+    await expect(content("test/dist/about/index.html")).resolves.toEqual(
+      "<h1>About</h1>",
+    );
     await expect(content("test/dist/contact/index.html")).resolves.toEqual(
       "<h1>Contact</h1>",
     );
@@ -188,7 +190,9 @@ describe("staticalize", () => {
 });
 
 async function content(path: string): Promise<string> {
-  await expect(exists(path)).resolves.toEqual(true);
+  if (!await exists(path)) {
+    expect("did not exist").toEqual(path);
+  }
   let bytes = await Deno.readFile(path);
   return new TextDecoder().decode(bytes);
 }
