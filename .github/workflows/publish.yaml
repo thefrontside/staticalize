@@ -70,6 +70,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.JACK_GITHUB_TOKEN }}
           make_latest: true
           files: |
             bin/*
