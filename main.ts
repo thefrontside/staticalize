@@ -1,7 +1,8 @@
-import { main } from "effection";
+import { call, main } from "effection";
 import { parser } from "npm:zod-opts";
 import { z } from "npm:zod";
 import { staticalize } from "./staticalize.ts";
+import { join } from "jsr:@std/path";
 
 const url = () =>
   z.string().refine((str) => str.match(/^http/), {
@@ -10,11 +11,11 @@ const url = () =>
 
 await main(function* (args) {
   let options = parser()
-    .name("statical")
+    .name("staticalize")
     .description(
       "Create a static version of a website by traversing a dynamically evaluated sitemap.xml",
     )
-    .version("0.0.0")
+    .version(yield* version())
     .options({
       site: {
         alias: "s",
@@ -22,12 +23,12 @@ await main(function* (args) {
         description:
           "URL of the website to staticalize. E.g. http://localhost:8000",
       },
-      outputdir: {
+      output: {
         type: z.string().default("dist"),
         description: "Directory to place the downloaded site",
         alias: "o",
       },
-      "base-url": {
+      "base": {
         type: url(),
         description:
           "Base URL of the public website. E.g. http://frontside.com",
@@ -36,8 +37,16 @@ await main(function* (args) {
     .parse(args);
 
   yield* staticalize({
-    base: new URL(options["base-url"]),
+    base: new URL(options.base),
     host: new URL(options.site),
-    dir: options.outputdir,
+    dir: options.output,
   });
 });
+
+function* version() {
+  try {
+    return yield* call(() => Deno.readTextFile(join(import.meta.dirname ?? "./", "VERSION")));
+  } catch {
+    return "0.0.0"
+  }
+}
