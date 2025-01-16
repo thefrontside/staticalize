@@ -18,11 +18,21 @@ jobs:
 
       - run: mkdir bin
 
+      - name: Get Version
+        id: vars
+        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^v//')
+
+      - name: Write Version file
+        run: |
+          touch VERSION
+          echo ${{steps.vars.outputs.version}} > VERSION
+
       - name: Compile for Linux arm64
         run: |
           deno compile \
             --target=aarch64-unknown-linux-gnu \
             --output=bin/staticalize-linux-arm64 \
+            --include=VERSION \
             --allow-read --allow-write --allow-net main.ts
 
       - name: Compile for macOS arm64
@@ -30,6 +40,7 @@ jobs:
           deno compile \
             --target=aarch64-apple-darwin \
             --output=bin/staticalize-macos-arm64 \
+            --include=VERSION \
             --allow-read --allow-write --allow-net main.ts
 
       - name: Compile for Linux x64
@@ -37,6 +48,7 @@ jobs:
           deno compile \
             --target=x86_64-unknown-linux-gnu \
             --output=bin/staticalize-linux \
+            --include=VERSION \
             --allow-read --allow-write --allow-net main.ts
   
       - name: Compile for Windows x64 
@@ -44,6 +56,7 @@ jobs:
           deno compile \
             --target=x86_64-pc-windows-msvc \
             --output=bin/staticalize-windows \
+            --include=VERSION \
             --allow-read --allow-write --allow-net main.ts  
 
       - name: Compile for macOS x64
@@ -51,7 +64,8 @@ jobs:
           deno compile \
             --target=x86_64-apple-darwin \
             --output=bin/staticalize-macos \
-            --allow-read --allow-write --allow-net main.ts    
+            --include=VERSION \
+            --allow-read --allow-write --allow-net main.ts
 
       - name: Release
         uses: softprops/action-gh-release@v2
