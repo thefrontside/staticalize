@@ -18,7 +18,7 @@ port `8000`, you can build a static version of the website fit to serve on
 `frontside.com` into the `dist/` directory with the following command:
 
 ```ts
-$ staticalize --site https://localhost:8000 --base-url http://frontside.com --outdir dist
+$ staticalize --site https://localhost:8000 --base http://frontside.com --output dist
 ```
 
 This will read `https://localhost:800/sitemap.xml` and download the entire
@@ -36,8 +36,8 @@ Options:
   -h, --help                Show help
   -V, --version             Show version
   -s, --site <string>       URL of the website to staticalize. E.g. http://localhost:8000  [required]
-  -o, --outputdir <string>  Directory to place the downloaded site (default: "dist")
-      --base-url <string>   Base URL of the public website. E.g. http://frontside.com      [required]
+  -o, --output <string>  Directory to place the downloaded site (default: "dist")
+      --base <string>   Base URL of the public website. E.g. http://frontside.com      [required]
 ```
 
 [sitemap]: https://sitemaps.org
