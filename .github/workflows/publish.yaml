@@ -16,39 +16,41 @@ jobs:
         with:
           deno-version: v2.x
 
+      - run: mkdir bin
+
       - name: Compile for Linux arm64
         run: |
           deno compile \
             --target=aarch64-unknown-linux-gnu \
-            --output=staticalize-linux-arm64 \
+            --output=bin/staticalize-linux-arm64 \
             --allow-read --allow-write --allow-net main.ts
 
       - name: Compile for macOS arm64
         run: |
           deno compile \
             --target=aarch64-apple-darwin \
-            --output=staticalize-macos-arm64 \
+            --output=bin/staticalize-macos-arm64 \
             --allow-read --allow-write --allow-net main.ts
 
       - name: Compile for Linux x64
         run: |
           deno compile \
             --target=x86_64-unknown-linux-gnu \
-            --output=staticalize-linux \
+            --output=bin/staticalize-linux \
             --allow-read --allow-write --allow-net main.ts
   
       - name: Compile for Windows x64 
         run: |
           deno compile \
             --target=x86_64-pc-windows-msvc \
-            --output=staticalize-windows \
+            --output=bin/staticalize-windows \
             --allow-read --allow-write --allow-net main.ts  
 
       - name: Compile for macOS x64
         run: |
           deno compile \
             --target=x86_64-apple-darwin \
-            --output=staticalize-macos \
+            --output=bin/staticalize-macos \
             --allow-read --allow-write --allow-net main.ts    
 
       - name: Release
@@ -56,4 +58,6 @@ jobs:
         with:
           make_latest: true
           files: |
-            staticalize-*
+            bin/*
+            action.yaml
+            README.md

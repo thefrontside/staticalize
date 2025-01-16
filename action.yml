@@ -1,0 +1,45 @@
+name: Staticalize
+description: Create a static version of a website by traversing a dynamically evaluated sitemap.xml
+author: Frontside Engineering <engineering@frontside.com>
+inputs:
+  site:
+    description: "URL of the website to staticalize. E.g. http://localhost:8000"
+    required: true
+  output:
+    description: Directory to place the downloaded site
+    required: true
+  base:
+    description: "Base URL of the public website. E.g. http://frontside.com"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    # Define the binary to use based on the OS
+    - name: Set binary path
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Linux" ] && [ "${{ runner.arch }}" = "X64" ]; then
+          echo "BINARY=./bin/staticalize-linux-x64" >> $GITHUB_ENV
+        elif [ "${{ runner.os }}" = "Linux" ] && [ "${{ runner.arch }}" = "ARM64" ]; then
+          echo "BINARY=./bin/staticalize-linux-arm64" >> $GITHUB_ENV
+        elif [ "${{ runner.os }}" = "Windows" ]; then
+          echo "BINARY=./bin/staticalize-windows.exe" >> $GITHUB_ENV
+        elif [ "${{ runner.os }}" = "macOS" ]; then
+          echo "BINARY=./bin/staticalize-macos" >> $GITHUB_ENV
+        else
+          echo "Unsupported OS or architecture: ${{ runner.os }} / ${{ runner.arch }}"
+          exit 1
+        fi
+    # Make the binary executable (if needed)
+    - name: Ensure executable permissions (Linux/macOS only)
+      shell: bash
+      if: startsWith(runner.os, 'Linux') || startsWith(runner.os, 'macOS')
+      run: chmod +x $BINARY
+
+    # Run the binary
+    - name: Run the selected binary
+      shell: bash
+      run: $BINARY \
+        --site=${{inputs.site}} \
+        --output=${{inputs.output}} \
+        --base=${{inputs.base}}
