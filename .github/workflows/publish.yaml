@@ -5,13 +5,16 @@ on:
     tags:
       - v*
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
@@ -20,7 +23,7 @@ jobs:
 
       - name: Get Version
         id: vars
-        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^v//')
+        run: echo "version=$(echo $GITHUB_REF_NAME | sed 's/^v//')" >> $GITHUB_OUTPUT
 
       - name: Write Version file
         run: |
@@ -33,7 +36,7 @@ jobs:
             --target=aarch64-unknown-linux-gnu \
             --output=bin/staticalize-linux-arm64 \
             --include=VERSION \
-            --allow-read --allow-write --allow-net main.ts
+            --allow-read --allow-write --allow-net --allow-env main.ts
 
       - name: Compile for macOS arm64
         run: |
@@ -41,7 +44,7 @@ jobs:
             --target=aarch64-apple-darwin \
             --output=bin/staticalize-macos-arm64 \
             --include=VERSION \
-            --allow-read --allow-write --allow-net main.ts
+            --allow-read --allow-write --allow-net  --allow-env main.ts
 
       - name: Compile for Linux x64
         run: |
@@ -49,15 +52,15 @@ jobs:
             --target=x86_64-unknown-linux-gnu \
             --output=bin/staticalize-linux \
             --include=VERSION \
-            --allow-read --allow-write --allow-net main.ts
-  
-      - name: Compile for Windows x64 
+            --allow-read --allow-write --allow-net --allow-env main.ts
+
+      - name: Compile for Windows x64
         run: |
           deno compile \
             --target=x86_64-pc-windows-msvc \
             --output=bin/staticalize-windows \
             --include=VERSION \
-            --allow-read --allow-write --allow-net main.ts  
+            --allow-read --allow-write --allow-net --allow-env main.ts
 
       - name: Compile for macOS x64
         run: |
@@ -65,14 +68,27 @@ jobs:
             --target=x86_64-apple-darwin \
             --output=bin/staticalize-macos \
             --include=VERSION \
-            --allow-read --allow-write --allow-net main.ts
+            --allow-read --allow-write --allow-net --allow-env main.ts
 
-      - name: Release
+      - name: Compress binaries
+        run: |
+          cd bin
+
+          zip staticalize-windows.zip staticalize-windows.exe
+          tar -czf staticalize-macos.tar.gz staticalize-macos
+          tar -czf staticalize-macos-arm64.tar.gz staticalize-macos-arm64
+          tar -czf staticalize-linux.tar.gz staticalize-linux
+          tar -czf staticalize-linux-arm64.tar.gz staticalize-linux-arm64
+
+          rm staticalize-windows.exe \
+            staticalize-macos \
+            staticalize-macos-arm64 \
+            staticalize-linux \
+            staticalize-linux-arm64
+
+      - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.JACK_GITHUB_TOKEN }}
           make_latest: true
-          files: |
-            bin/*
-            action.yaml
-            README.md
+          files: bin/*
