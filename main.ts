@@ -1,8 +1,8 @@
-import { call, main } from "effection";
+import { main } from "effection";
 import { parser } from "npm:zod-opts";
 import { z } from "npm:zod";
 import { staticalize } from "./staticalize.ts";
-import { join } from "jsr:@std/path";
+import denoJson from "./deno.json" with { type: "json" };
 
 const url = () =>
   z.string().refine((str) => str.match(/^http/), {
@@ -15,7 +15,7 @@ await main(function* (args) {
     .description(
       "Create a static version of a website by traversing a dynamically evaluated sitemap.xml",
     )
-    .version(yield* version())
+    .version(denoJson.version)
     .options({
       site: {
         alias: "s",
@@ -42,11 +42,3 @@ await main(function* (args) {
     dir: options.output,
   });
 });
-
-function* version() {
-  try {
-    return yield* call(() => Deno.readTextFile(join(import.meta.dirname ?? "./", "VERSION")));
-  } catch {
-    return "0.0.0"
-  }
-}

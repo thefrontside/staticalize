@@ -1,8 +1,8 @@
-import { call, Operation, resource, spawn, useAbortSignal } from "effection";
-import { dirname, join, normalize } from "jsr:@std/path";
+import { call, type Operation, resource, spawn, useAbortSignal } from "effection";
+import { dirname, join, normalize } from "@std/path";
 import { ensureDir } from "@std/fs/ensure-dir";
 import { stringify } from "@libs/xml/stringify";
-import { DOMParser, Element } from "deno-dom";
+import { DOMParser, type Element } from "deno-dom";
 import { parse } from "@libs/xml/parse";
 import { useTaskBuffer } from "./task-buffer.ts";
 
