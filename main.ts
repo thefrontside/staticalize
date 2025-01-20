@@ -1,6 +1,6 @@
 import { main } from "effection";
-import { parser } from "npm:zod-opts";
-import { z } from "npm:zod";
+import { parser } from "zod-opts";
+import { z } from "zod";
 import { staticalize } from "./staticalize.ts";
 import denoJson from "./deno.json" with { type: "json" };
 

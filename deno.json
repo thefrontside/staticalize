@@ -18,7 +18,9 @@
     "@std/path": "jsr:@std/path@1",
     "@libs/xml": "jsr:@libs/xml@^6.0.0",
     "deno-dom": "jsr:@b-fuze/deno-dom@0.1.49",
-    "effection": "npm:effection@4.0.0-alpha.4"
+    "effection": "npm:effection@4.0.0-alpha.4",
+    "zod": "npm:zod@^3.20.0",
+    "zod-opts": "npm:zod-opts@0.1.8"
   },
   "lint": {
     "rules": {
