@@ -1,7 +1,10 @@
 {
   "name": "@frontside/staticalize",
-  "version": "0.1.0",
-  "exports": "./mod.ts",
+  "version": "0.2.0",
+  "exports": {
+    ".": "./mod.ts",
+    "./cli": "./main.ts"
+  },
   "license": "MIT",
   "tasks": {
     "dev": "deno run --watch main.ts",
