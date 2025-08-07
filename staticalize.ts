@@ -1,8 +1,17 @@
-import { call, type Operation, resource, spawn, useAbortSignal } from "effection";
+import {
+  call,
+  type Operation,
+  resource,
+  spawn,
+  until,
+  useAbortSignal,
+} from "effection";
 import { dirname, join, normalize } from "@std/path";
 import { ensureDir } from "@std/fs/ensure-dir";
 import { stringify } from "@libs/xml/stringify";
-import { DOMParser, type Element } from "deno-dom";
+import { fromHtml } from "hast-util-from-html";
+import { toHtml } from "hast-util-to-html";
+import { selectAll } from "hast-util-select";
 import { parse } from "@libs/xml/parse";
 import { useTaskBuffer } from "./task-buffer.ts";
 
@@ -41,7 +50,7 @@ export function* staticalize(options: StaticalizeOptions): Operation<void> {
     return Array.isArray(urls) ? urls : [urls];
   });
 
-  let downloader = yield* useDownloader({ host, outdir: dir });
+  let downloader = yield* useDownloader({ host, base, outdir: dir });
 
   yield* call(() => ensureDir(dir));
 
@@ -80,13 +89,14 @@ interface Downloader extends Operation<void> {
 
 interface DownloaderOptions {
   host: URL;
+  base: URL;
   outdir: string;
 }
 
 function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
   let seen = new Map<string, boolean>();
   return resource(function* (provide) {
-    let { host, outdir } = opts;
+    let { host, base, outdir } = opts;
 
     let buffer = yield* useTaskBuffer(75);
 
@@ -114,30 +124,45 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
           if (response.ok) {
             if (response.headers.get("Content-Type")?.includes("html")) {
               let destpath = join(path, "index.html");
-              let content = yield* call(() => response.text());
-              let document = new DOMParser().parseFromString(
-                content,
-                "text/html",
-              );
-              let links = document.querySelectorAll("link[href]");
+              let content = yield* until(response.text());
+              let html = fromHtml(content);
 
-              for (let node of links) {
-                let link = node as Element;
-                let href = link.getAttribute("href");
-                yield* downloader.download(href!, source);
+              let links = selectAll("link[href]", html);
+
+              for (let link of links) {
+                let href = link.properties.href as string;
+                yield* downloader.download(href, source);
+
+                // replace self-referencing absolute urls with the destination site
+                if (href.startsWith(host.origin)) {
+                  let url = new URL(href);
+                  url.host = base.host;
+                  url.port = base.port;
+                  url.protocol = base.protocol;
+                  link.properties.href = url.href;
+                }
               }
 
-              let assets = document.querySelectorAll("[src]");
-              for (let node of assets) {
-                let element = node as Element;
-                let src = element.getAttribute("src")!;
-                yield* downloader.download(src!, source);
+              let assets = selectAll("[src]", html);
+
+              for (let element of assets) {
+                let src = element.properties.src as string;
+                yield* downloader.download(src, source);
+
+                // replace self-referencing absolute urls with the destination sie
+                if (src.startsWith(host.origin)) {
+                  let url = new URL(src);
+                  url.host = base.host;
+                  url.port = base.port;
+                  url.protocol = base.protocol;
+                  element.properties.src = url.href;
+                }
               }
 
               yield* call(async () => {
                 let destdir = dirname(destpath);
                 await ensureDir(destdir);
-                await Deno.writeTextFile(destpath, content);
+                await Deno.writeTextFile(destpath, toHtml(html));
               });
             } else {
               yield* call(async () => {
