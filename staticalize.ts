@@ -2,7 +2,9 @@ import { call, type Operation, resource, spawn, useAbortSignal } from "effection
 import { dirname, join, normalize } from "@std/path";
 import { ensureDir } from "@std/fs/ensure-dir";
 import { stringify } from "@libs/xml/stringify";
-import { DOMParser, type Element } from "deno-dom";
+import { fromHtml } from "hast-util-from-html";
+//import { toHtml } from "hast-util-to-html";
+import { selectAll } from "hast-util-select";
 import { parse } from "@libs/xml/parse";
 import { useTaskBuffer } from "./task-buffer.ts";
 
@@ -115,23 +117,20 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
             if (response.headers.get("Content-Type")?.includes("html")) {
               let destpath = join(path, "index.html");
               let content = yield* call(() => response.text());
-              let document = new DOMParser().parseFromString(
-                content,
-                "text/html",
-              );
-              let links = document.querySelectorAll("link[href]");
+	      let html = fromHtml(content);
 
-              for (let node of links) {
-                let link = node as Element;
-                let href = link.getAttribute("href");
-                yield* downloader.download(href!, source);
+              let links = selectAll("link[href]", html);
+
+              for (let link of links) {
+		let href = link.properties.href as string
+                yield* downloader.download(href, source);
               }
+	      
+              let assets = selectAll("[src]", html);
 
-              let assets = document.querySelectorAll("[src]");
-              for (let node of assets) {
-                let element = node as Element;
-                let src = element.getAttribute("src")!;
-                yield* downloader.download(src!, source);
+              for (let element of assets) {
+		let src = element.properties.src as string;
+                yield* downloader.download(src, source);
               }
 
               yield* call(async () => {
