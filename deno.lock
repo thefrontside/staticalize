@@ -1,32 +1,32 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
-    "jsr:@b-fuze/deno-dom@*": "0.1.47",
-    "jsr:@b-fuze/deno-dom@0.1.47": "0.1.47",
+    "jsr:@b-fuze/deno-dom@0.1.49": "0.1.49",
     "jsr:@hono/hono@*": "4.5.8",
-    "jsr:@libs/typing@2": "2.8.1",
-    "jsr:@libs/xml@*": "5.4.13",
-    "jsr:@std/fs@*": "1.0.1",
-    "jsr:@std/path@*": "1.0.2",
-    "jsr:@std/path@^1.0.2": "1.0.2",
+    "jsr:@libs/typing@^3.1.2": "3.1.2",
+    "jsr:@libs/xml@6": "6.0.3",
+    "jsr:@std/fs@1": "1.0.19",
+    "jsr:@std/internal@^1.0.9": "1.0.10",
+    "jsr:@std/path@1": "1.1.1",
+    "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/testing@1": "1.0.0",
-    "npm:effection@4.0.0-alpha.4": "4.0.0-alpha.4",
+    "npm:effection@4.0.0-beta.2": "4.0.0-beta.2",
     "npm:zod-opts@*": "0.1.8",
     "npm:zod@*": "3.23.8",
     "npm:zx@*": "8.1.4"
   },
   "jsr": {
-    "@b-fuze/deno-dom@0.1.47": {
-      "integrity": "270a888de91329f8ce3849211ece0ad97ce1e8b9a8a774f2bed2f43c8b0ffe8e"
+    "@b-fuze/deno-dom@0.1.49": {
+      "integrity": "45c40175fdd1e74ab2d4b54c4fdaabbad6e5b76ee28df12a48e076b3fa7901a9"
     },
     "@hono/hono@4.5.8": {
       "integrity": "60f5b4c61edae2016022d6087b4fc381f378d337f046f56e00a3a3512c7e9c16"
     },
-    "@libs/typing@2.8.1": {
-      "integrity": "08437a01ec51f74a20a5ab5d683475025f93a2ad641d2394a97e87f7b5194d78"
+    "@libs/typing@3.1.2": {
+      "integrity": "72342a0eaedcc1f3f3ec18f8f9573759011c68f135e2ec6c7282c59843f7a37e"
     },
-    "@libs/xml@5.4.13": {
-      "integrity": "995320d1ce4a29ced82233e5e46d47a880e338197bbd257a686bf9afcc3ac0e4",
+    "@libs/xml@6.0.3": {
+      "integrity": "85506d5c61b0110d26dbb02059ce5a543226c3501fccbc7692e2ba4921f95567",
       "dependencies": [
         "jsr:@libs/typing"
       ]
@@ -34,14 +34,21 @@
     "@std/fs@0.229.1": {
       "integrity": "38d3fb31f0ca0a8c1118e039939188f32e291a3f7f17dc0868fec22024bdfadd"
     },
-    "@std/fs@1.0.1": {
-      "integrity": "d6914ca2c21abe591f733b31dbe6331e446815e513e2451b3b9e472daddfefcb",
+    "@std/fs@1.0.19": {
+      "integrity": "051968c2b1eae4d2ea9f79a08a3845740ef6af10356aff43d3e2ef11ed09fb06",
       "dependencies": [
-        "jsr:@std/path@^1.0.2"
+        "jsr:@std/internal",
+        "jsr:@std/path@^1.1.1"
       ]
     },
-    "@std/path@1.0.2": {
-      "integrity": "a452174603f8c620bd278a380c596437a9eef50c891c64b85812f735245d9ec7"
+    "@std/internal@1.0.10": {
+      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    },
+    "@std/path@1.1.1": {
+      "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
     },
     "@std/testing@1.0.0": {
       "integrity": "27cfc06392c69c2acffe54e6d0bcb5f961cf193f519255372bd4fff1481bfef8"
@@ -70,8 +77,8 @@
         "undici-types"
       ]
     },
-    "effection@4.0.0-alpha.4": {
-      "integrity": "sha512-xor8XVkRGy6pvBoZBlBoZ0NIXBLzNHSgWQn29itt+6Fy42bqMPRhbUtyxwDI4LRlkmlVhPWk60mZPflNlDTSIQ=="
+    "effection@4.0.0-beta.2": {
+      "integrity": "sha512-iqEBfInNx3rB2DhQYYu6LcJ7zRn4yFo+DjUntcWNZeYWh1LiucMXb2JMiD1OA8WPgc3KOwQBxXfOwby1v34WdQ=="
     },
     "undici-types@5.26.5": {
       "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
@@ -87,10 +94,11 @@
     },
     "zx@8.1.4": {
       "integrity": "sha512-QFDYYpnzdpRiJ3dL2102Cw26FpXpWshW4QLTGxiYfIcwdAqg084jRCkK/kuP/NOSkxOjydRwNFG81qzA5r1a6w==",
-      "dependencies": [
+      "optionalDependencies": [
         "@types/fs-extra",
         "@types/node@20.12.7"
-      ]
+      ],
+      "bin": true
     }
   },
   "remote": {
@@ -140,13 +148,16 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@b-fuze/deno-dom@*",
-      "jsr:@libs/xml@*",
+      "jsr:@b-fuze/deno-dom@0.1.49",
+      "jsr:@libs/xml@6",
       "jsr:@std/assert@1",
       "jsr:@std/cli@1",
-      "jsr:@std/fs@*",
+      "jsr:@std/fs@1",
+      "jsr:@std/path@1",
       "jsr:@std/testing@1",
-      "npm:effection@4.0.0-alpha.4"
+      "npm:effection@4.0.0-beta.2",
+      "npm:zod-opts@0.1.8",
+      "npm:zod@^3.20.0"
     ]
   }
 }
