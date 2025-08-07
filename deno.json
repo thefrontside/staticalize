@@ -17,7 +17,6 @@
     "@std/fs": "jsr:@std/fs@1",
     "@std/path": "jsr:@std/path@1",
     "@libs/xml": "jsr:@libs/xml@^6.0.0",
-    "deno-dom": "jsr:@b-fuze/deno-dom@0.1.49",
     "effection": "npm:effection@4.0.0-beta.2",
     "hast-util-from-html": "npm:hast-util-from-html@^2.0.3",
     "hast-util-select": "npm:hast-util-select@^6.0.4",

@@ -1,29 +1,21 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@b-fuze/deno-dom@0.1.49": "0.1.49",
-    "jsr:@denosaurs/plug@1.0.3": "1.0.3",
     "jsr:@hono/hono@*": "4.5.8",
     "jsr:@libs/typing@^3.1.2": "3.1.2",
     "jsr:@libs/xml@6": "6.0.3",
     "jsr:@std/assert@1": "1.0.13",
     "jsr:@std/assert@^1.0.2": "1.0.13",
-    "jsr:@std/assert@~0.213.1": "0.213.1",
     "jsr:@std/cli@1": "1.0.21",
     "jsr:@std/data-structures@^1.0.1": "1.0.9",
-    "jsr:@std/encoding@0.213.1": "0.213.1",
-    "jsr:@std/fmt@0.213.1": "0.213.1",
-    "jsr:@std/fs@0.213.1": "0.213.1",
     "jsr:@std/fs@1": "1.0.19",
     "jsr:@std/fs@^1.0.1": "1.0.19",
     "jsr:@std/internal@^1.0.1": "1.0.10",
     "jsr:@std/internal@^1.0.6": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
-    "jsr:@std/path@0.213.1": "0.213.1",
     "jsr:@std/path@1": "1.1.1",
     "jsr:@std/path@^1.0.2": "1.1.1",
     "jsr:@std/path@^1.1.1": "1.1.1",
-    "jsr:@std/path@~0.213.1": "0.213.1",
     "jsr:@std/testing@1": "1.0.0",
     "npm:effection@4.0.0-beta.2": "4.0.0-beta.2",
     "npm:hast-util-from-html@^2.0.3": "2.0.3",
@@ -36,21 +28,6 @@
     "npm:zx@*": "8.1.4"
   },
   "jsr": {
-    "@b-fuze/deno-dom@0.1.49": {
-      "integrity": "45c40175fdd1e74ab2d4b54c4fdaabbad6e5b76ee28df12a48e076b3fa7901a9",
-      "dependencies": [
-        "jsr:@denosaurs/plug"
-      ]
-    },
-    "@denosaurs/plug@1.0.3": {
-      "integrity": "b010544e386bea0ff3a1d05e0c88f704ea28cbd4d753439c2f1ee021a85d4640",
-      "dependencies": [
-        "jsr:@std/encoding",
-        "jsr:@std/fmt",
-        "jsr:@std/fs@0.213.1",
-        "jsr:@std/path@0.213.1"
-      ]
-    },
     "@hono/hono@4.5.8": {
       "integrity": "60f5b4c61edae2016022d6087b4fc381f378d337f046f56e00a3a3512c7e9c16"
     },
@@ -62,9 +39,6 @@
       "dependencies": [
         "jsr:@libs/typing"
       ]
-    },
-    "@std/assert@0.213.1": {
-      "integrity": "24c28178b30c8e0782c18e8e94ea72b16282207569cdd10ffb9d1d26f2edebfe"
     },
     "@std/assert@1.0.13": {
       "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
@@ -78,19 +52,6 @@
     "@std/data-structures@1.0.9": {
       "integrity": "033d6e17e64bf1f84a614e647c1b015fa2576ae3312305821e1a4cb20674bb4d"
     },
-    "@std/encoding@0.213.1": {
-      "integrity": "fcbb6928713dde941a18ca5db88ca1544d0755ec8fb20fe61e2dc8144b390c62"
-    },
-    "@std/fmt@0.213.1": {
-      "integrity": "a06d31777566d874b9c856c10244ac3e6b660bdec4c82506cd46be052a1082c3"
-    },
-    "@std/fs@0.213.1": {
-      "integrity": "fbcaf099f8a85c27ab0712b666262cda8fe6d02e9937bf9313ecaea39a22c501",
-      "dependencies": [
-        "jsr:@std/assert@~0.213.1",
-        "jsr:@std/path@~0.213.1"
-      ]
-    },
     "@std/fs@0.229.1": {
       "integrity": "38d3fb31f0ca0a8c1118e039939188f32e291a3f7f17dc0868fec22024bdfadd"
     },
@@ -103,12 +64,6 @@
     },
     "@std/internal@1.0.10": {
       "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
-    },
-    "@std/path@0.213.1": {
-      "integrity": "f187bf278a172752e02fcbacf6bd78a335ed320d080a7ed3a5a59c3e88abc673",
-      "dependencies": [
-        "jsr:@std/assert@~0.213.1"
-      ]
     },
     "@std/path@1.1.1": {
       "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
@@ -499,7 +454,6 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@b-fuze/deno-dom@0.1.49",
       "jsr:@libs/xml@6",
       "jsr:@std/assert@1",
       "jsr:@std/cli@1",
