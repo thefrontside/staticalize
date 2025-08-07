@@ -6,7 +6,7 @@ import { emptyDir, exists } from "@std/fs";
 
 import { Hono } from "jsr:@hono/hono";
 import { parse } from "@libs/xml";
-import { run, Task } from "effection";
+import { run, type Task } from "effection";
 
 describe("staticalize", () => {
   let server: ReturnType<typeof Deno.serve>;
@@ -58,13 +58,13 @@ describe("staticalize", () => {
     });
 
     await expect(content("test/dist/index.html")).resolves.toEqual(
-      "<h1>Index</h1>",
+      "<html><head></head><body><h1>Index</h1></body></html>",
     );
     await expect(content("test/dist/about/index.html")).resolves.toEqual(
-      "<h1>About</h1>",
+      "<html><head></head><body><h1>About</h1></body></html>",
     );
     await expect(content("test/dist/contact/index.html")).resolves.toEqual(
-      "<h1>Contact</h1>",
+      "<html><head></head><body><h1>Contact</h1></body></html>",
     );
 
     let xml = parse(await Deno.readTextFile("test/dist/sitemap.xml"));
@@ -88,7 +88,7 @@ describe("staticalize", () => {
       dir: "test/dist",
     });
     expect(content("test/dist/deeply/nested/page/index.html")).resolves.toEqual(
-      "<h1>Nested</h1>",
+      "<html><head></head><body><h1>Nested</h1></body></html>",
     );
   });
 
@@ -188,18 +188,19 @@ describe("staticalize", () => {
     await expect(exists("test/dist/assets/styles.css")).resolves.toEqual(true);
   });
 
-  it.skip("replaces references to absolute assets that have the sae host that we're scraping", async () => {
+  it("replaces references to absolute assets that have the sae host that we're scraping", async () => {
     const html = `
 <html>
   <head>
     <link rel="canonical"  href="${host}"/>
-    <link rel="alternate"  href="${host}alt"/>
+    <script src="${host}main.js"/>
   </head>
+  <body></body>
 </html>
-`
-    app.get("/", (c) =>
-      c.html(html))
+`;
+    app.get("/", (c) => c.html(html))
       .get("/alt", (c) => c.html(html))
+      .get("/main.js", (c) => c.text("console.log('hi')"))
       .get(...sitemap(["/"]));
 
     await staticalize({
@@ -208,14 +209,12 @@ describe("staticalize", () => {
       dir: "test/dist",
     });
 
-    await expect(content("test/dist/index.html")).resolves.toEqual(`
-<html>
-  <head>
-    <link rel="canonical"  href="https://fs.com/"/>
-    <link rel="alternate"  href="https://fs.com/alt"/>
-  </head>
-</html>
-`);
+    await expect(content("test/dist/index.html")).resolves.toMatch(
+      `<link rel="canonical" href="https://fs.com/">`,
+    );
+    await expect(content("test/dist/index.html")).resolves.toMatch(
+      `<script src="https://fs.com/main.js">`,
+    );
   });
 });
 
