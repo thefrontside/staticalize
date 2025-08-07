@@ -187,6 +187,36 @@ describe("staticalize", () => {
 
     await expect(exists("test/dist/assets/styles.css")).resolves.toEqual(true);
   });
+
+  it.skip("replaces references to absolute assets that have the sae host that we're scraping", async () => {
+    const html = `
+<html>
+  <head>
+    <link rel="canonical"  href="${host}"/>
+    <link rel="alternate"  href="${host}alt"/>
+  </head>
+</html>
+`
+    app.get("/", (c) =>
+      c.html(html))
+      .get("/alt", (c) => c.html(html))
+      .get(...sitemap(["/"]));
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(content("test/dist/index.html")).resolves.toEqual(`
+<html>
+  <head>
+    <link rel="canonical"  href="https://fs.com/"/>
+    <link rel="alternate"  href="https://fs.com/alt"/>
+  </head>
+</html>
+`);
+  });
 });
 
 async function content(path: string): Promise<string> {
