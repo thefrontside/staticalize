@@ -193,13 +193,15 @@ describe("staticalize", () => {
 <html>
   <head>
     <link rel="canonical"  href="${host}"/>
-    <script src="${host}main.js"/>
+    <meta property="og:url" content="${host}image.png"/>
+    <script src="${host}main.js"></script>
   </head>
   <body></body>
 </html>
 `;
     app.get("/", (c) => c.html(html))
       .get("/alt", (c) => c.html(html))
+      .get("/image.png", (c) => c.text(""))
       .get("/main.js", (c) => c.text("console.log('hi')"))
       .get(...sitemap(["/"]));
 
@@ -214,6 +216,9 @@ describe("staticalize", () => {
     );
     await expect(content("test/dist/index.html")).resolves.toMatch(
       `<script src="https://fs.com/main.js">`,
+    );
+    await expect(content("test/dist/index.html")).resolves.toMatch(
+      `<meta property="og:url" content="https://fs.com/image.png">`,
     );
   });
 });
