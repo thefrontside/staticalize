@@ -159,6 +159,19 @@ function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
                 }
               }
 
+              let withContents = selectAll("[content]", html);
+              for (let element of withContents) {
+                let attr = String(element.properties.content);
+                if (attr.startsWith(host.origin)) {
+                  yield* downloader.download(attr, source);
+                  let url = new URL(attr);
+                  url.host = base.host;
+                  url.port = base.port;
+                  url.protocol = base.protocol;
+                  element.properties.content = url.href;
+                }
+              }
+
               yield* call(async () => {
                 let destdir = dirname(destpath);
                 await ensureDir(destdir);
