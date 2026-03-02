@@ -1,33 +1,54 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
+    "jsr:@deno/dnt@0.42.3": "0.42.3",
     "jsr:@hono/hono@*": "4.5.8",
     "jsr:@libs/typing@^3.1.2": "3.1.2",
     "jsr:@libs/xml@6": "6.0.3",
     "jsr:@std/assert@1": "1.0.13",
+    "jsr:@std/assert@^1.0.14": "1.0.18",
     "jsr:@std/assert@^1.0.2": "1.0.13",
     "jsr:@std/cli@1": "1.0.21",
     "jsr:@std/data-structures@^1.0.1": "1.0.9",
+    "jsr:@std/expect@1": "1.0.17",
+    "jsr:@std/fmt@1": "1.0.8",
     "jsr:@std/fs@1": "1.0.19",
     "jsr:@std/fs@^1.0.1": "1.0.19",
     "jsr:@std/internal@^1.0.1": "1.0.10",
+    "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/internal@^1.0.6": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/path@1": "1.1.1",
     "jsr:@std/path@^1.0.2": "1.1.1",
     "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/testing@1": "1.0.0",
-    "npm:effection@4.0.0-beta.2": "4.0.0-beta.2",
+    "jsr:@ts-morph/bootstrap@0.27": "0.27.0",
+    "jsr:@ts-morph/common@0.27": "0.27.0",
+    "npm:configliere@~0.2.3": "0.2.3",
+    "npm:effection@^4.0.2": "4.0.2",
     "npm:hast-util-from-html@^2.0.3": "2.0.3",
     "npm:hast-util-select@^6.0.4": "6.0.4",
     "npm:hast-util-to-html@^9.0.5": "9.0.5",
-    "npm:zod-opts@*": "0.1.8",
     "npm:zod-opts@0.1.8": "0.1.8",
-    "npm:zod@*": "3.23.8",
-    "npm:zod@^3.20.0": "3.23.8",
+    "npm:zod@^4.1.11": "4.1.11",
     "npm:zx@*": "8.1.4"
   },
   "jsr": {
+    "@david/code-block-writer@13.0.3": {
+      "integrity": "f98c77d320f5957899a61bfb7a9bead7c6d83ad1515daee92dbacc861e13bb7f"
+    },
+    "@deno/dnt@0.42.3": {
+      "integrity": "62a917a0492f3c8af002dce90605bb0d41f7d29debc06aca40dba72ab65d8ae3",
+      "dependencies": [
+        "jsr:@david/code-block-writer",
+        "jsr:@std/fmt",
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1",
+        "jsr:@ts-morph/bootstrap"
+      ]
+    },
     "@hono/hono@4.5.8": {
       "integrity": "60f5b4c61edae2016022d6087b4fc381f378d337f046f56e00a3a3512c7e9c16"
     },
@@ -46,11 +67,27 @@
         "jsr:@std/internal@^1.0.6"
       ]
     },
+    "@std/assert@1.0.18": {
+      "integrity": "270245e9c2c13b446286de475131dc688ca9abcd94fc5db41d43a219b34d1c78",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
     "@std/cli@1.0.21": {
       "integrity": "cd25b050bdf6282e321854e3822bee624f07aca7636a3a76d95f77a3a919ca2a"
     },
     "@std/data-structures@1.0.9": {
       "integrity": "033d6e17e64bf1f84a614e647c1b015fa2576ae3312305821e1a4cb20674bb4d"
+    },
+    "@std/expect@1.0.17": {
+      "integrity": "316b47dd65c33e3151344eb3267bf42efba17d1415425f07ed96185d67fc04d9",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.14",
+        "jsr:@std/internal@^1.0.10"
+      ]
+    },
+    "@std/fmt@1.0.8": {
+      "integrity": "71e1fc498787e4434d213647a6e43e794af4fd393ef8f52062246e06f7e372b7"
     },
     "@std/fs@0.229.1": {
       "integrity": "38d3fb31f0ca0a8c1118e039939188f32e291a3f7f17dc0868fec22024bdfadd"
@@ -64,6 +101,9 @@
     },
     "@std/internal@1.0.10": {
       "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
     "@std/path@1.1.1": {
       "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
@@ -80,6 +120,19 @@
         "jsr:@std/internal@^1.0.1",
         "jsr:@std/path@^1.0.2"
       ]
+    },
+    "@ts-morph/bootstrap@0.27.0": {
+      "integrity": "b8d7bc8f7942ce853dde4161b28f9aa96769cef3d8eebafb379a81800b9e2448",
+      "dependencies": [
+        "jsr:@ts-morph/common"
+      ]
+    },
+    "@ts-morph/common@0.27.0": {
+      "integrity": "c7b73592d78ce8479b356fd4f3d6ec3c460d77753a8680ff196effea7a939052",
+      "dependencies": [
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1"
+      ]
     }
   },
   "npm": {
@@ -87,7 +140,7 @@
       "integrity": "sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==",
       "dependencies": [
         "@types/jsonfile",
-        "@types/node@18.16.19"
+        "@types/node"
       ]
     },
     "@types/hast@3.0.4": {
@@ -99,7 +152,7 @@
     "@types/jsonfile@6.1.4": {
       "integrity": "sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==",
       "dependencies": [
-        "@types/node@18.16.19"
+        "@types/node"
       ]
     },
     "@types/mdast@4.0.4": {
@@ -107,9 +160,6 @@
       "dependencies": [
         "@types/unist"
       ]
-    },
-    "@types/node@18.16.19": {
-      "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA=="
     },
     "@types/node@20.12.7": {
       "integrity": "sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==",
@@ -141,6 +191,12 @@
     "comma-separated-tokens@2.0.3": {
       "integrity": "sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg=="
     },
+    "configliere@0.2.3": {
+      "integrity": "sha512-yXhYYx89F+8UV4tJBP/N0Jb3SujLea3rp7p47fSAlj6wLl8Acve2pUZwcklgmb3ifJZvDGQWT9EiQmilEY1D9g==",
+      "dependencies": [
+        "ts-case-convert"
+      ]
+    },
     "css-selector-parser@3.1.3": {
       "integrity": "sha512-gJMigczVZqYAk0hPVzx/M4Hm1D9QOtqkdQk9005TNzDIUGzo5cnHEDiKUT7jGPximL/oYb+LIitcHFQ4aKupxg=="
     },
@@ -157,8 +213,8 @@
       "integrity": "sha512-9S6m9Sukh1cZNknO1CWAr2QAWsbKLafQiyM5gZ7VgXHeuaoUwffKN4q6NC4A/Mf9iiPlOXQEKW/Mv/mh9/3YFA==",
       "bin": true
     },
-    "effection@4.0.0-beta.2": {
-      "integrity": "sha512-iqEBfInNx3rB2DhQYYu6LcJ7zRn4yFo+DjUntcWNZeYWh1LiucMXb2JMiD1OA8WPgc3KOwQBxXfOwby1v34WdQ=="
+    "effection@4.0.2": {
+      "integrity": "sha512-O8WMGP10nPuJDwbNGILcaCNWS+CvDYjcdsUSD79nWZ+WtUQ8h1MEV7JJwCSZCSeKx8+TdEaZ/8r6qPTR2o/o8w=="
     },
     "entities@6.0.1": {
       "integrity": "sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g=="
@@ -326,6 +382,9 @@
     "trim-lines@3.0.1": {
       "integrity": "sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg=="
     },
+    "ts-case-convert@2.1.0": {
+      "integrity": "sha512-Ye79el/pHYXfoew6kqhMwCoxp4NWjKNcm2kBzpmEMIU9dd9aBmHNNFtZ+WTm0rz1ngyDmfqDXDlyUnBXayiD0w=="
+    },
     "undici-types@5.26.5": {
       "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
     },
@@ -389,11 +448,14 @@
     "zod-opts@0.1.8": {
       "integrity": "sha512-YZhdEcIL3D2W9fXCCf/UBgrBS90c8w25RTteh5GihGIZzadYr/qIFxyM2L98zHUkZ2S8MMxwn3ny8fzPNnvPlg==",
       "dependencies": [
-        "zod"
+        "zod@3.25.76"
       ]
     },
-    "zod@3.23.8": {
-      "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
+    "zod@3.25.76": {
+      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
+    },
+    "zod@4.1.11": {
+      "integrity": "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg=="
     },
     "zwitch@2.0.4": {
       "integrity": "sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A=="
@@ -402,7 +464,7 @@
       "integrity": "sha512-QFDYYpnzdpRiJ3dL2102Cw26FpXpWshW4QLTGxiYfIcwdAqg084jRCkK/kuP/NOSkxOjydRwNFG81qzA5r1a6w==",
       "optionalDependencies": [
         "@types/fs-extra",
-        "@types/node@20.12.7"
+        "@types/node"
       ],
       "bin": true
     }
@@ -454,18 +516,22 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@deno/dnt@0.42.3",
+      "jsr:@hono/hono@*",
       "jsr:@libs/xml@6",
       "jsr:@std/assert@1",
       "jsr:@std/cli@1",
+      "jsr:@std/expect@1",
       "jsr:@std/fs@1",
       "jsr:@std/path@1",
       "jsr:@std/testing@1",
-      "npm:effection@4.0.0-beta.2",
+      "npm:configliere@~0.2.3",
+      "npm:effection@^4.0.2",
       "npm:hast-util-from-html@^2.0.3",
       "npm:hast-util-select@^6.0.4",
       "npm:hast-util-to-html@^9.0.5",
       "npm:zod-opts@0.1.8",
-      "npm:zod@^3.20.0"
+      "npm:zod@^4.1.11"
     ]
   }
 }

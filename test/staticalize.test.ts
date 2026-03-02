@@ -1,12 +1,12 @@
+import { expect } from "@std/expect";
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
-import { expect } from "https://deno.land/x/expect@v0.3.0/mod.ts";
 
-import { staticalize as $staticalize } from "../mod.ts";
 import { emptyDir, exists } from "@std/fs";
+import { staticalize as $staticalize } from "../mod.ts";
 
-import { Hono } from "jsr:@hono/hono";
 import { parse } from "@libs/xml";
 import { run, type Task } from "effection";
+import { Hono } from "@hono/hono";
 
 describe("staticalize", () => {
   let server: ReturnType<typeof Deno.serve>;
@@ -211,13 +211,13 @@ describe("staticalize", () => {
       dir: "test/dist",
     });
 
-    await expect(content("test/dist/index.html")).resolves.toMatch(
+    await expect(content("test/dist/index.html")).resolves.toContain(
       `<link rel="canonical" href="https://fs.com/">`,
     );
-    await expect(content("test/dist/index.html")).resolves.toMatch(
+    await expect(content("test/dist/index.html")).resolves.toContain(
       `<script src="https://fs.com/main.js">`,
     );
-    await expect(content("test/dist/index.html")).resolves.toMatch(
+    await expect(content("test/dist/index.html")).resolves.toContain(
       `<meta property="og:url" content="https://fs.com/image.png">`,
     );
   });

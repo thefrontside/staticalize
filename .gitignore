@@ -2,3 +2,6 @@
 /statical
 /dist/
 /staticalize
+/.agent-shell/
+/build/
+/node_modules/
