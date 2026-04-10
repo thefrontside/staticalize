@@ -22,8 +22,8 @@
     "@std/path": "jsr:@std/path@1",
     "@libs/xml": "jsr:@libs/xml@^6.0.0",
     "effection": "npm:effection@^4.0.2",
-    "@effectionx/context-api": "npm:@effectionx/context-api",
-    "clayterm": "https://esm.sh/pr/clayterm@e413755",
+    "@effectionx/context-api": "npm:@effectionx/context-api@^0.5.3",
+    "clayterm": "npm:clayterm@^0.6.0",
     "hast-util-from-html": "npm:hast-util-from-html@^2.0.3",
     "hast-util-select": "npm:hast-util-select@^6.0.4",
     "hast-util-to-html": "npm:hast-util-to-html@^9.0.5",
@@ -42,10 +42,16 @@
   "publish": {
     "include": [
       "mod.ts",
+      "main.ts",
       "staticalize.ts",
+      "downloader.ts",
       "task-buffer.ts",
       "config.ts",
-      "main.ts",
+      "progress.ts",
+      "terminal.ts",
+      "resize.ts",
+      "stdio.ts",
+      "use-input.ts",
       "README.md",
       "deno.json"
     ]

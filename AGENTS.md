@@ -1,17 +1,22 @@
 # Agents
 
-This repository uses AI agents to assist with development tasks. This file provides entry points for agent discovery.
+This repository uses AI agents to assist with development tasks. This file
+provides entry points for agent discovery.
 
 ## Project Overview
 
 Staticalize is a CLI tool and library that downloads and staticalizes websites
-from a sitemap. It fetches pages, rewrites links to point to a new base URL,
-and saves the result to disk. Published to JSR as `@frontside/staticalize` and
-to npm via a Deno build step.
+from a sitemap. It fetches pages, rewrites links to point to a new base URL, and
+saves the result to disk. Published to JSR as `@frontside/staticalize` and to
+npm via a Deno build step.
 
 ## Effection
 
-This repository builds on [Effection](https://github.com/thefrontside/effection), a structured concurrency library. Before working with code here, read the [Effection AGENTS.md](https://github.com/thefrontside/effection/blob/v4/AGENTS.md) for essential concepts:
+This repository builds on
+[Effection](https://github.com/thefrontside/effection), a structured concurrency
+library. Before working with code here, read the
+[Effection AGENTS.md](https://github.com/thefrontside/effection/blob/v4/AGENTS.md)
+for essential concepts:
 
 - Operations vs Promises (lazy vs eager execution)
 - Scope ownership and structured concurrency
@@ -40,7 +45,8 @@ This repository builds on [Effection](https://github.com/thefrontside/effection)
 - Resources must clean up properly on scope exit
 - Prefer `Operation<T>` for async operations
 - Use `until()` for lifting promises into operations
-- Never kill the process directly (`Deno.exit()`, `process.exit()`) — use `yield* exit()` from Effection
+- Never kill the process directly (`Deno.exit()`, `process.exit()`) — use
+  `yield* exit()` from Effection
 
 ## Commit and PR Conventions
 
@@ -52,4 +58,3 @@ Do not include any agent marketing material (e.g. "Generated with...",
 "Co-Authored-By: \<agent>") in commits, pull requests, issues, or comments.
 
 Pull requests use **Motivation / Approach** sections (not Summary / Test plan).
-
