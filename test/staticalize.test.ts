@@ -2,7 +2,7 @@ import { expect } from "@std/expect";
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 
 import { emptyDir, exists } from "@std/fs";
-import { staticalize as $staticalize } from "../mod.ts";
+import { useStaticalizer } from "../mod.ts";
 
 import { parse } from "@libs/xml";
 import { run, type Task } from "effection";
@@ -231,6 +231,11 @@ async function content(path: string): Promise<string> {
   return new TextDecoder().decode(bytes);
 }
 
-function staticalize(...options: Parameters<typeof $staticalize>): Task<void> {
-  return run(() => $staticalize(...options));
+function staticalize(
+  ...options: Parameters<typeof useStaticalizer>
+): Task<void> {
+  return run(function* () {
+    let staticalizer = yield* useStaticalizer(...options);
+    yield* staticalizer.staticalize();
+  });
 }
