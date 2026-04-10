@@ -23,7 +23,7 @@
     "@libs/xml": "jsr:@libs/xml@^6.0.0",
     "effection": "npm:effection@^4.0.2",
     "@effectionx/context-api": "npm:@effectionx/context-api",
-    "clayterm": "/Users/cowboyd/Code/@cowboyd/clayterm/mod.ts",
+    "clayterm": "https://esm.sh/pr/clayterm@e413755",
     "hast-util-from-html": "npm:hast-util-from-html@^2.0.3",
     "hast-util-select": "npm:hast-util-select@^6.0.4",
     "hast-util-to-html": "npm:hast-util-to-html@^9.0.5",
