@@ -6,26 +6,29 @@
     "jsr:@hono/hono@*": "4.5.8",
     "jsr:@libs/typing@^3.1.2": "3.1.2",
     "jsr:@libs/xml@6": "6.0.3",
-    "jsr:@std/assert@1": "1.0.13",
+    "jsr:@std/assert@1": "1.0.18",
     "jsr:@std/assert@^1.0.14": "1.0.18",
-    "jsr:@std/assert@^1.0.2": "1.0.13",
+    "jsr:@std/assert@^1.0.2": "1.0.18",
+    "jsr:@std/async@^1.0.2": "1.1.1",
     "jsr:@std/cli@1": "1.0.21",
     "jsr:@std/data-structures@^1.0.1": "1.0.9",
     "jsr:@std/expect@1": "1.0.17",
     "jsr:@std/fmt@1": "1.0.8",
     "jsr:@std/fs@1": "1.0.19",
     "jsr:@std/fs@^1.0.1": "1.0.19",
-    "jsr:@std/internal@^1.0.1": "1.0.10",
-    "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/internal@^1.0.1": "1.0.12",
+    "jsr:@std/internal@^1.0.10": "1.0.12",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/internal@^1.0.6": "1.0.10",
-    "jsr:@std/internal@^1.0.9": "1.0.10",
+    "jsr:@std/internal@^1.0.9": "1.0.12",
     "jsr:@std/path@1": "1.1.1",
     "jsr:@std/path@^1.0.2": "1.1.1",
     "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/testing@1": "1.0.0",
     "jsr:@ts-morph/bootstrap@0.27": "0.27.0",
     "jsr:@ts-morph/common@0.27": "0.27.0",
+    "npm:@effectionx/context-api@*": "0.5.3_effection@4.0.2",
+    "npm:@effectionx/stream-helpers@~0.8.2": "0.8.2_effection@4.0.2",
     "npm:configliere@~0.2.3": "0.2.3",
     "npm:effection@^4.0.2": "4.0.2",
     "npm:hast-util-from-html@^2.0.3": "2.0.3",
@@ -73,6 +76,9 @@
         "jsr:@std/internal@^1.0.12"
       ]
     },
+    "@std/async@1.1.1": {
+      "integrity": "8a79beb3378cc229ce65ba2c746cfd03e4855ddd891d1eb6b9e32128e0d5339c"
+    },
     "@std/cli@1.0.21": {
       "integrity": "cd25b050bdf6282e321854e3822bee624f07aca7636a3a76d95f77a3a919ca2a"
     },
@@ -115,6 +121,7 @@
       "integrity": "27cfc06392c69c2acffe54e6d0bcb5f961cf193f519255372bd4fff1481bfef8",
       "dependencies": [
         "jsr:@std/assert@^1.0.2",
+        "jsr:@std/async",
         "jsr:@std/data-structures",
         "jsr:@std/fs@^1.0.1",
         "jsr:@std/internal@^1.0.1",
@@ -136,6 +143,39 @@
     }
   },
   "npm": {
+    "@effectionx/context-api@0.5.3_effection@4.0.2": {
+      "integrity": "sha512-OqS/7RGZtIoiRsL6dwetKLvS8F3NLiVU3iKlBbqxI+NPKXs/ackKn294eGlHUHx49Y89fUVU6YPalj2UbxwBzA==",
+      "dependencies": [
+        "@effectionx/middleware",
+        "effection"
+      ]
+    },
+    "@effectionx/middleware@0.1.1": {
+      "integrity": "sha512-ss/bZRkt/xzJNE59r8NR1+0K/xQcIyCm0y9n8FYC8jKdFn51SPe3m3t7EfPcK8zkdjCoTOU7k1UpIXRl26asYA=="
+    },
+    "@effectionx/signals@0.5.3_effection@4.0.2": {
+      "integrity": "sha512-AJvbUeCD5QHJ0Lc+kVtvAOZUJjXCJcOVVkRVTyOE3DPnUNQnbxVpB2o/lmBN7dnjNlGI78F4lWLMjoGZ98XRcQ==",
+      "dependencies": [
+        "effection",
+        "immutable"
+      ]
+    },
+    "@effectionx/stream-helpers@0.8.2_effection@4.0.2": {
+      "integrity": "sha512-dWgK7ILXX6dQy2WkTajGrF2P2u0ZXUcOFcXOD5srmr8vnOnGSU7eENjnx7XPV13PF9BMzFV/n39VXz7R42FgaA==",
+      "dependencies": [
+        "@effectionx/signals",
+        "@effectionx/timebox",
+        "effection",
+        "immutable",
+        "remeda"
+      ]
+    },
+    "@effectionx/timebox@0.4.3_effection@4.0.2": {
+      "integrity": "sha512-cc7SLpL3svAYK8M5NS8kLQuL0lrZNoQb+Hi9NSaWOudzAW1HoewuDfUtfXLemPJnnLqLYhbghRhmpVqCm4Xg3Q==",
+      "dependencies": [
+        "effection"
+      ]
+    },
     "@types/fs-extra@11.0.4": {
       "integrity": "sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==",
       "dependencies": [
@@ -316,6 +356,9 @@
     "html-void-elements@3.0.0": {
       "integrity": "sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg=="
     },
+    "immutable@5.1.5": {
+      "integrity": "sha512-t7xcm2siw+hlUM68I+UEOK+z84RzmN59as9DZ7P1l0994DKUWV7UXBMQZVxaoMSRQ+PBZbHCOoBt7a2wxOMt+A=="
+    },
     "mdast-util-to-hast@13.2.0": {
       "integrity": "sha512-QGYKEuUsYT9ykKBCMOEDLsU5JRObWQusAolFMeko/tYPufNkRffBAQjIE+99jbA87xv6FgmjLtwjh9wBWajwAA==",
       "dependencies": [
@@ -368,6 +411,9 @@
     },
     "property-information@7.1.0": {
       "integrity": "sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ=="
+    },
+    "remeda@2.33.7": {
+      "integrity": "sha512-cXlyjevWx5AcslOUEETG4o8XYi9UkoCXcJmj7XhPFVbla+ITuOBxv6ijBrmbeg+ZhzmDThkNdO+iXKUfrJep1w=="
     },
     "space-separated-tokens@2.0.2": {
       "integrity": "sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q=="
@@ -525,6 +571,8 @@
       "jsr:@std/fs@1",
       "jsr:@std/path@1",
       "jsr:@std/testing@1",
+      "npm:@effectionx/context-api@*",
+      "npm:@effectionx/stream-helpers@~0.8.2",
       "npm:configliere@~0.2.3",
       "npm:effection@^4.0.2",
       "npm:hast-util-from-html@^2.0.3",
