@@ -44,7 +44,11 @@ await main(function* (args) {
           console.error(`\n${errors.length} failed downloads:\n`);
           for (let error of errors) {
             console.error(`  ${error.url}`);
-            console.error(`    referrer: ${error.referrer}\n`);
+            console.error(`    referrer: ${error.referrer}`);
+            if (error.error) {
+              console.error(`    error: ${error.error}`);
+            }
+            console.error("");
           }
           yield* exit(1);
         }

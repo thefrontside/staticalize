@@ -40,10 +40,22 @@ export function useStaticalizer(
         error.name = `SitemapError`;
         throw error;
       }
-      let text = await response.text();
-      let xml = parse(text, {
-        flatten: { attributes: false, empty: false, text: true },
-      }) as unknown as SitemapXML;
+      let xml: SitemapXML;
+      try {
+        let text = await response.text();
+        xml = parse(text, {
+          flatten: { attributes: false, empty: false, text: true },
+        }) as unknown as SitemapXML;
+      } catch (cause) {
+        // Reading or parsing the sitemap body can fail on its own (e.g. a
+        // gzip/transport decode error, or malformed XML); attach the URL so the
+        // failure is traceable rather than a bare stack trace.
+        let error = new Error(`GET ${url} could not be read as a sitemap`, {
+          cause,
+        });
+        error.name = `SitemapError`;
+        throw error;
+      }
 
       let entries = xml.urlset.url ?? xml.urlset.urls ?? [];
       let list = Array.isArray(entries) ? entries : [entries];
