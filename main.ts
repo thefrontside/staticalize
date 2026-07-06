@@ -45,8 +45,12 @@ await main(function* (args) {
           for (let error of errors) {
             console.error(`  ${error.url}`);
             console.error(`    referrer: ${error.referrer}`);
-            if (error.error) {
-              console.error(`    error: ${error.error}`);
+            let cause: unknown = error.error;
+            let indent = "    ";
+            while (cause instanceof Error) {
+              console.error(`${indent}${cause.name}: ${cause.message}`);
+              cause = cause.cause;
+              indent += "  ";
             }
             console.error("");
           }

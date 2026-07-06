@@ -25,7 +25,7 @@ export interface DownloaderOptions {
 
 export type DownloadResult =
   | { ok: true; bytes: number }
-  | { ok: false; url: string; referrer: string; error?: string };
+  | { ok: false; url: string; referrer: string; error: Error };
 
 export const DownloadApi = createApi("@staticalize/download", {
   *download(
@@ -115,27 +115,24 @@ export const DownloadApi = createApi("@staticalize/download", {
           ok: false,
           url: source.toString(),
           referrer: referrer.toString(),
-          error: `GET ${source} ${response.status} ${response.statusText}`,
+          error: new Error(
+            `GET ${source} responded ${response.status} ${response.statusText}`,
+          ),
         };
       }
-    } catch (error) {
+    } catch (cause) {
       // A thrown exception here (e.g. a gzip/transport decode error, an HTML
       // parse error, or a filesystem write error) would otherwise escape
       // uncaught and crash the whole run with no indication of which URL was
       // being downloaded. Route it into the collected-error path instead, so
       // the run continues, every failing URL is reported, and the output
-      // directory still gets every page/asset that succeeded.
-      if (signal.aborted) {
-        // The run is being torn down — preserve cancellation semantics.
-        throw error;
-      }
+      // directory still gets every page/asset that succeeded. The underlying
+      // error is preserved as `cause` for the reported hierarchy.
       return {
         ok: false,
         url: source.toString(),
         referrer: referrer.toString(),
-        error: error instanceof Error
-          ? `${error.name}: ${error.message}`
-          : String(error),
+        error: new Error(`could not download ${source}`, { cause }),
       };
     }
   },

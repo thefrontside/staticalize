@@ -7,7 +7,7 @@ import type { Staticalizer } from "./staticalize.ts";
 export interface DownloadError {
   url: string;
   referrer: string;
-  error?: string;
+  error: Error;
 }
 
 export interface ProgressResult {
