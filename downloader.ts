@@ -21,6 +21,7 @@ export interface DownloaderOptions {
   host: URL;
   base: URL;
   outdir: string;
+  strict?: boolean;
 }
 
 export type DownloadResult =
@@ -34,9 +35,21 @@ export const DownloadApi = createApi("@staticalize/download", {
     source: URL,
     referrer: URL,
   ): Operation<DownloadResult> {
-    let { host, base, outdir } = opts;
+    let { host, base, outdir, strict } = opts;
     let signal = yield* useAbortSignal();
     let path = normalize(join(outdir, source.pathname));
+
+    let fail = (error: Error): DownloadResult => {
+      if (strict) {
+        throw error;
+      }
+      return {
+        ok: false,
+        url: source.toString(),
+        referrer: referrer.toString(),
+        error,
+      };
+    };
 
     try {
       let response = yield* until(fetch(source.toString(), { signal }));
@@ -111,29 +124,16 @@ export const DownloadApi = createApi("@staticalize/download", {
           return { ok: true, bytes: size };
         }
       } else {
-        return {
-          ok: false,
-          url: source.toString(),
-          referrer: referrer.toString(),
-          error: new Error(
+        return fail(
+          new Error(
             `GET ${source} responded ${response.status} ${response.statusText}`,
           ),
-        };
+        );
       }
     } catch (cause) {
-      // A thrown exception here (e.g. a gzip/transport decode error, an HTML
-      // parse error, or a filesystem write error) would otherwise escape
-      // uncaught and crash the whole run with no indication of which URL was
-      // being downloaded. Route it into the collected-error path instead, so
-      // the run continues, every failing URL is reported, and the output
-      // directory still gets every page/asset that succeeded. The underlying
-      // error is preserved as `cause` for the reported hierarchy.
-      return {
-        ok: false,
-        url: source.toString(),
-        referrer: referrer.toString(),
-        error: new Error(`could not download ${source}`, { cause }),
-      };
+      // e.g. a gzip/transport decode error, an HTML parse error, or a
+      // filesystem write error — none of which name the url on their own.
+      return fail(new Error(`could not download ${source}`, { cause }));
     }
   },
 });

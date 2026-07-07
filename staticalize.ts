@@ -15,6 +15,7 @@ export interface StaticalizeOptions {
   host: URL;
   base: URL;
   dir: string;
+  strict?: boolean;
 }
 
 export interface Staticalizer {
@@ -25,7 +26,7 @@ export interface Staticalizer {
 export function useStaticalizer(
   options: StaticalizeOptions,
 ): Operation<Staticalizer> {
-  let { host, base, dir } = options;
+  let { host, base, dir, strict } = options;
 
   return resource(function* (provide) {
     let signal = yield* useAbortSignal();
@@ -68,7 +69,7 @@ export function useStaticalizer(
       );
     });
 
-    let downloader = yield* useDownloader({ host, base, outdir: dir });
+    let downloader = yield* useDownloader({ host, base, outdir: dir, strict });
 
     yield* provide({
       urls,

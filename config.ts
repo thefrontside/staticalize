@@ -24,5 +24,10 @@ export const config = program({
       description: "Base URL of the public website. E.g. http://frontside.com",
       ...field(url()),
     },
+    strict: {
+      description:
+        "Fail on the first download error instead of collecting all failures and continuing",
+      ...field(z.boolean(), field.default(false)),
+    },
   }),
 });
