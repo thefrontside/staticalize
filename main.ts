@@ -18,7 +18,7 @@ await main(function* (args) {
     case "main": {
       let result = parser.parse();
       if (result.ok) {
-        let { base, site, output } = result.value;
+        let { base, site, output, strict } = result.value;
 
         let stdin = yield* initStdin;
 
@@ -32,6 +32,7 @@ await main(function* (args) {
           base: new URL(base),
           host: new URL(site),
           dir: output,
+          strict,
         });
 
         let { errors } = yield* withProgress({
@@ -44,7 +45,15 @@ await main(function* (args) {
           console.error(`\n${errors.length} failed downloads:\n`);
           for (let error of errors) {
             console.error(`  ${error.url}`);
-            console.error(`    referrer: ${error.referrer}\n`);
+            console.error(`    referrer: ${error.referrer}`);
+            let cause: unknown = error.error;
+            let indent = "    ";
+            while (cause instanceof Error) {
+              console.error(`${indent}${cause.name}: ${cause.message}`);
+              cause = cause.cause;
+              indent += "  ";
+            }
+            console.error("");
           }
           yield* exit(1);
         }

@@ -28,16 +28,22 @@ file server running at `frontside.com`.
 ### CLI
 
 ```
-Usage: staticalize [options]
+Usage: staticalize [OPTIONS] <site>
 
-Create a static version of a website by traversing a dynamically evaluated sitemap.xml
+Arguments:
+   <site>                    URL of the website to staticalize. E.g. http://localhost:8000
 
 Options:
-  -h, --help                Show help
-  -V, --version             Show version
-  -s, --site <string>       URL of the website to staticalize. E.g. http://localhost:8000  [required]
-  -o, --output <string>  Directory to place the downloaded site (default: "dist")
-      --base <string>   Base URL of the public website. E.g. http://frontside.com      [required]
+   --output <OUTPUT>         Directory to place the downloaded site [default: dist]
+   --base <BASE>             Base URL of the public website. E.g. http://frontside.com
+   --strict                  Fail on the first download error instead of collecting all failures and continuing [default: false]
+   -h, --help                show help
+   -v, --version             show version
 ```
+
+By default, staticalize downloads as much of the site as it can: any page or
+asset that fails is reported at the end and the process exits non-zero, but the
+run continues so you get every page that _did_ work. Pass `--strict` to fail
+fast and abort the whole run on the first download error.
 
 [sitemap]: https://sitemaps.org

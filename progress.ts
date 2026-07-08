@@ -7,6 +7,7 @@ import type { Staticalizer } from "./staticalize.ts";
 export interface DownloadError {
   url: string;
   referrer: string;
+  error: Error;
 }
 
 export interface ProgressResult {
@@ -66,7 +67,11 @@ export function* withProgress(
         }
       } else {
         model.errors++;
-        errors.push({ url: result.url, referrer: result.referrer });
+        errors.push({
+          url: result.url,
+          referrer: result.referrer,
+          error: result.error,
+        });
       }
       yield* render(progress(model));
       return result;

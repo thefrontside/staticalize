@@ -138,6 +138,55 @@ describe("staticalize", () => {
     );
   });
 
+  it("keeps going and does not crash when a page fails to download", async () => {
+    app.get("/", (c) => c.html("<h1>Index</h1>"));
+    // advertises gzip but the body is not valid gzip — decoding this response
+    // throws `Invalid gzip header`, which used to escape uncaught and crash the
+    // whole run with no indication of which url was at fault.
+    app.get("/bad", (c) =>
+      c.body("this is definitely not gzip", 200, {
+        "Content-Type": "text/html",
+        "Content-Encoding": "gzip",
+      }));
+    app.get("/good", (c) => c.html("<h1>Good</h1>"));
+    app.get(...sitemap(["/", "/bad", "/good"]));
+
+    // the run resolves rather than rejecting with the decode error
+    await staticalize({
+      host,
+      base: new URL("https://frontside.com"),
+      dir: "test/dist",
+    });
+
+    // the healthy pages were still written to disk
+    await expect(exists("test/dist/index.html")).resolves.toEqual(true);
+    await expect(exists("test/dist/good/index.html")).resolves.toEqual(true);
+    // the page that could not be decoded was skipped, not written
+    await expect(exists("test/dist/bad/index.html")).resolves.toEqual(false);
+  });
+
+  it("fails fast on the first download error when strict", async () => {
+    app.get("/", (c) => c.html("<h1>Index</h1>"));
+    // same bad-gzip fixture as above: decoding this response throws.
+    app.get("/bad", (c) =>
+      c.body("this is definitely not gzip", 200, {
+        "Content-Type": "text/html",
+        "Content-Encoding": "gzip",
+      }));
+    app.get("/good", (c) => c.html("<h1>Good</h1>"));
+    app.get(...sitemap(["/", "/bad", "/good"]));
+
+    // in strict mode the failure aborts the run rather than being collected
+    await expect(
+      staticalize({
+        host,
+        base: new URL("https://frontside.com"),
+        dir: "test/dist",
+        strict: true,
+      }),
+    ).rejects.toThrow(/could not download/);
+  });
+
   it("does not download assets that are in a different domain", async () => {
     app.get("/spa", (c) =>
       c.html(`
