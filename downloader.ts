@@ -2,6 +2,7 @@ import {
   call,
   type Operation,
   resource,
+  sleep,
   until,
   useAbortSignal,
 } from "effection";
@@ -22,6 +23,8 @@ export interface DownloaderOptions {
   base: URL;
   outdir: string;
   strict?: boolean;
+  concurrency?: number;
+  retries?: number;
 }
 
 export type DownloadResult =
@@ -35,7 +38,7 @@ export const DownloadApi = createApi("@staticalize/download", {
     source: URL,
     referrer: URL,
   ): Operation<DownloadResult> {
-    let { host, base, outdir, strict } = opts;
+    let { host, base, outdir, strict, retries = 3 } = opts;
     let signal = yield* useAbortSignal();
     let path = normalize(join(outdir, source.pathname));
 
@@ -51,9 +54,16 @@ export const DownloadApi = createApi("@staticalize/download", {
       };
     };
 
-    try {
-      let response = yield* until(fetch(source.toString(), { signal }));
-      if (response.ok) {
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      if (attempt > 0) {
+        // exponential backoff: 1s, 2s, 4s, ...
+        yield* sleep(1000 * 2 ** (attempt - 1));
+      }
+
+      try {
+        let response = yield* until(fetch(source.toString(), { signal }));
+        if (response.ok) {
         if (response.headers.get("Content-Type")?.includes("html")) {
           let destpath = join(path, "index.html");
           let content = yield* until(response.text());
@@ -123,18 +133,20 @@ export const DownloadApi = createApi("@staticalize/download", {
           });
           return { ok: true, bytes: size };
         }
-      } else {
-        return fail(
-          new Error(
+        } else {
+          lastError = new Error(
             `GET ${source} responded ${response.status} ${response.statusText}`,
-          ),
-        );
+          );
+          if (attempt < retries) continue;
+          return fail(lastError);
+        }
+      } catch (cause) {
+        lastError = new Error(`could not download ${source}`, { cause });
+        if (attempt < retries) continue;
+        return fail(lastError);
       }
-    } catch (cause) {
-      // e.g. a gzip/transport decode error, an HTML parse error, or a
-      // filesystem write error — none of which name the url on their own.
-      return fail(new Error(`could not download ${source}`, { cause }));
     }
+    return fail(lastError!);
   },
 });
 
@@ -143,9 +155,9 @@ const { download } = DownloadApi.operations;
 export function useDownloader(opts: DownloaderOptions): Operation<Downloader> {
   let seen = new Map<string, boolean>();
   return resource(function* (provide) {
-    let { host } = opts;
+    let { host, concurrency = 75 } = opts;
 
-    let buffer = yield* useTaskBuffer(75);
+    let buffer = yield* useTaskBuffer(concurrency);
 
     let downloader: Downloader = {
       *download(loc, context = host) {

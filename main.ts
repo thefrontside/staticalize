@@ -18,7 +18,7 @@ await main(function* (args) {
     case "main": {
       let result = parser.parse();
       if (result.ok) {
-        let { base, site, output, strict } = result.value;
+        let { base, site, output, strict, concurrency, retries } = result.value;
 
         let stdin = yield* initStdin;
 
@@ -33,6 +33,8 @@ await main(function* (args) {
           host: new URL(site),
           dir: output,
           strict,
+          concurrency,
+          retries,
         });
 
         let { errors } = yield* withProgress({

@@ -29,5 +29,15 @@ export const config = program({
         "Fail on the first download error instead of collecting all failures and continuing",
       ...field(z.boolean(), field.default(false)),
     },
+    concurrency: {
+      description:
+        "Maximum number of concurrent downloads. Lower values avoid upstream rate limiting.",
+      ...field(z.number(), field.default(75)),
+    },
+    retries: {
+      description:
+        "Number of times to retry a failed download before giving up.",
+      ...field(z.number(), field.default(3)),
+    },
   }),
 });
