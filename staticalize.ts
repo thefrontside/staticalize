@@ -71,7 +71,14 @@ export function useStaticalizer(
       );
     });
 
-    let downloader = yield* useDownloader({ host, base, outdir: dir, strict, concurrency, retries });
+    let downloader = yield* useDownloader({
+      host,
+      base,
+      outdir: dir,
+      strict,
+      concurrency,
+      retries,
+    });
 
     yield* provide({
       urls,

@@ -1,5 +1,4 @@
 import {
-  call,
   type Operation,
   resource,
   sleep,
@@ -54,101 +53,109 @@ export const DownloadApi = createApi("@staticalize/download", {
       };
     };
 
-    let lastError: Error | undefined;
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      if (attempt > 0) {
-        // exponential backoff: 1s, 2s, 4s, ...
-        yield* sleep(1000 * 2 ** (attempt - 1));
-      }
+    try {
+      let response = yield* fetchWithRetry(source.toString(), signal, retries);
 
-      try {
-        let response = yield* until(fetch(source.toString(), { signal }));
-        if (response.ok) {
-        if (response.headers.get("Content-Type")?.includes("html")) {
-          let destpath = join(path, "index.html");
-          let content = yield* until(response.text());
-          let html = fromHtml(content);
+      if (response.headers.get("Content-Type")?.includes("html")) {
+        let destpath = join(path, "index.html");
+        let content = yield* until(response.text());
+        let html = fromHtml(content);
 
-          let links = selectAll("link[href]", html);
+        let links = selectAll("link[href]", html);
 
-          for (let link of links) {
-            let href = link.properties.href as string;
-            yield* downloader.download(href, source);
+        for (let link of links) {
+          let href = link.properties.href as string;
+          yield* downloader.download(href, source);
 
-            // replace self-referencing absolute urls with the destination site
-            if (href.startsWith(host.origin)) {
-              let url = new URL(href);
-              url.host = base.host;
-              url.port = base.port;
-              url.protocol = base.protocol;
-              link.properties.href = url.href;
-            }
+          // replace self-referencing absolute urls with the destination site
+          if (href.startsWith(host.origin)) {
+            let url = new URL(href);
+            url.host = base.host;
+            url.port = base.port;
+            url.protocol = base.protocol;
+            link.properties.href = url.href;
           }
-
-          let assets = selectAll("[src]", html);
-
-          for (let element of assets) {
-            let src = element.properties.src as string;
-            yield* downloader.download(src, source);
-
-            // replace self-referencing absolute urls with the destination site
-            if (src.startsWith(host.origin)) {
-              let url = new URL(src);
-              url.host = base.host;
-              url.port = base.port;
-              url.protocol = base.protocol;
-              element.properties.src = url.href;
-            }
-          }
-
-          let withContents = selectAll("[content]", html);
-          for (let element of withContents) {
-            let attr = String(element.properties.content);
-            if (attr.startsWith(host.origin)) {
-              yield* downloader.download(attr, source);
-              let url = new URL(attr);
-              url.host = base.host;
-              url.port = base.port;
-              url.protocol = base.protocol;
-              element.properties.content = url.href;
-            }
-          }
-
-          let output = toHtml(html);
-          yield* call(async () => {
-            let destdir = dirname(destpath);
-            await ensureDir(destdir);
-            await Deno.writeTextFile(destpath, output);
-          });
-          return {
-            ok: true,
-            bytes: new TextEncoder().encode(output).byteLength,
-          };
-        } else {
-          let size = Number(response.headers.get("Content-Length") ?? 0);
-          yield* call(async () => {
-            let destdir = dirname(path);
-            await ensureDir(destdir);
-            await Deno.writeFile(path, response.body!);
-          });
-          return { ok: true, bytes: size };
         }
-        } else {
-          lastError = new Error(
-            `GET ${source} responded ${response.status} ${response.statusText}`,
-          );
-          if (attempt < retries) continue;
-          return fail(lastError);
+
+        let assets = selectAll("[src]", html);
+
+        for (let element of assets) {
+          let src = element.properties.src as string;
+          yield* downloader.download(src, source);
+
+          // replace self-referencing absolute urls with the destination site
+          if (src.startsWith(host.origin)) {
+            let url = new URL(src);
+            url.host = base.host;
+            url.port = base.port;
+            url.protocol = base.protocol;
+            element.properties.src = url.href;
+          }
         }
-      } catch (cause) {
-        lastError = new Error(`could not download ${source}`, { cause });
-        if (attempt < retries) continue;
-        return fail(lastError);
+
+        let withContents = selectAll("[content]", html);
+        for (let element of withContents) {
+          let attr = String(element.properties.content);
+          if (attr.startsWith(host.origin)) {
+            yield* downloader.download(attr, source);
+            let url = new URL(attr);
+            url.host = base.host;
+            url.port = base.port;
+            url.protocol = base.protocol;
+            element.properties.content = url.href;
+          }
+        }
+
+        let output = toHtml(html);
+        let destdir = dirname(destpath);
+        yield* until(ensureDir(destdir));
+        yield* until(Deno.writeTextFile(destpath, output));
+        return {
+          ok: true,
+          bytes: new TextEncoder().encode(output).byteLength,
+        };
+      } else {
+        let size = Number(response.headers.get("Content-Length") ?? 0);
+        let destdir = dirname(path);
+        yield* until(ensureDir(destdir));
+        yield* until(Deno.writeFile(path, response.body!));
+        return { ok: true, bytes: size };
       }
+    } catch (cause: unknown) {
+      if (cause instanceof Error) {
+        return fail(cause);
+      }
+      throw cause;
     }
-    return fail(lastError!);
   },
 });
+
+function* fetchWithRetry(
+  url: string,
+  signal: AbortSignal,
+  retries: number,
+): Operation<Response> {
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    if (attempt > 0) {
+      // exponential backoff: 1s, 2s, 4s, ...
+      yield* sleep(1000 * 2 ** (attempt - 1));
+    }
+
+    try {
+      let response = yield* until(fetch(url, { signal }));
+      if (response.ok) {
+        return response;
+      }
+      lastError = new Error(
+        `GET ${url} responded ${response.status} ${response.statusText}`,
+      );
+    } catch (cause) {
+      lastError = new Error(`could not download ${url}`, { cause });
+    }
+  }
+  throw lastError!;
+}
 
 const { download } = DownloadApi.operations;
 
