@@ -18,7 +18,10 @@ await main(function* (args) {
     case "main": {
       let result = parser.parse();
       if (result.ok) {
-        let { base, site, output, strict, concurrency, retries } = result.value;
+        let { base, site, output, strict, concurrency, retries: retriesRaw } =
+          result.value;
+        // don't have a great way to default dynamically based on strict mode
+        let retries = retriesRaw ?? (strict ? 0 : 3);
 
         let stdin = yield* initStdin;
 

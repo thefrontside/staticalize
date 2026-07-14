@@ -36,8 +36,8 @@ export const config = program({
     },
     retries: {
       description:
-        "Number of times to retry a failed download before giving up.",
-      ...field(z.number(), field.default(3)),
+        "Number of times to retry a failed download before giving up. Defaults to 0 in strict mode.",
+      ...field(z.number()),
     },
   }),
 });
