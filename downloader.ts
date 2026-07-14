@@ -122,10 +122,11 @@ export const DownloadApi = createApi("@staticalize/download", {
         return { ok: true, bytes: size };
       }
     } catch (cause: unknown) {
-      if (cause instanceof Error) {
-        return fail(cause);
-      }
-      throw cause;
+      return fail(
+        cause instanceof Error
+          ? new Error(`could not download ${source}`, { cause })
+          : new Error(`could not download ${source}`),
+      );
     }
   },
 });
