@@ -11,7 +11,7 @@ import { fromHtml } from "hast-util-from-html";
 import { toHtml } from "hast-util-to-html";
 import { selectAll } from "hast-util-select";
 import { useTaskBuffer } from "./task-buffer.ts";
-import { rebase } from "./rebase.ts";
+import { rebase, rebaseText } from "./rebase.ts";
 import { createApi } from "@effectionx/context-api";
 
 export interface Downloader extends Operation<void> {
@@ -74,6 +74,18 @@ export const DownloadApi = createApi("@staticalize/download", {
           }
         }
 
+        // anchors are rewritten but not followed: the sitemap says what the
+        // site is made of, and downloading every link would crawl past it
+        let anchors = selectAll("a[href]", html);
+
+        for (let anchor of anchors) {
+          let href = anchor.properties.href as string;
+
+          if (href.startsWith(host.origin)) {
+            anchor.properties.href = rebase(new URL(href), base).href;
+          }
+        }
+
         let assets = selectAll("[src]", html);
 
         for (let element of assets) {
@@ -103,6 +115,16 @@ export const DownloadApi = createApi("@staticalize/download", {
           ok: true,
           bytes: new TextEncoder().encode(output).byteLength,
         };
+      } else if (isTextual(response.headers.get("Content-Type"))) {
+        let content = yield* until(response.text());
+        let output = rebaseText(content, host, base);
+        let destdir = dirname(path);
+        yield* until(ensureDir(destdir));
+        yield* until(Deno.writeTextFile(path, output));
+        return {
+          ok: true,
+          bytes: new TextEncoder().encode(output).byteLength,
+        };
       } else {
         let size = Number(response.headers.get("Content-Length") ?? 0);
         let destdir = dirname(path);
@@ -119,6 +141,25 @@ export const DownloadApi = createApi("@staticalize/download", {
     }
   },
 });
+
+/**
+ * Is this a content type whose body is text we can rewrite urls in?
+ *
+ * Everything else is streamed to disk byte for byte, so a binary body is never
+ * decoded and re-encoded.
+ */
+function isTextual(contentType: string | null): boolean {
+  if (!contentType) {
+    return false;
+  }
+  let type = contentType.split(";")[0].trim().toLowerCase();
+  return type.startsWith("text/") ||
+    type.endsWith("+json") ||
+    type.endsWith("+xml") ||
+    ["application/json", "application/xml", "application/javascript"].includes(
+      type,
+    );
+}
 
 function* fetchWithRetry(
   url: string,

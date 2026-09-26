@@ -20,3 +20,23 @@ export function rebase(source: URL, base: URL): URL {
   url.pathname = `${base.pathname.replace(/\/$/, "")}${source.pathname}`;
   return url;
 }
+
+/**
+ * Replace self-referencing absolute urls in a text body with the public base.
+ *
+ * There is no document to walk in a text body, so unlike the html pass this is
+ * a substitution of the crawl origin rather than a rewrite of known
+ * url-bearing attributes.
+ *
+ * @param body text served by the crawled site
+ * @param host url of the site being crawled
+ * @param base public base url of the site, path included
+ * @returns the body with every url on the crawled site pointing at the base
+ */
+export function rebaseText(body: string, host: URL, base: URL): string {
+  // the crawl origin stands for the root of the site, so it maps onto the base
+  // the same way any other url does. the result carries a trailing slash, which
+  // the urls in the body bring themselves.
+  let prefix = `${rebase(new URL(host.origin), base)}`.replace(/\/$/, "");
+  return body.replaceAll(host.origin, prefix);
+}
