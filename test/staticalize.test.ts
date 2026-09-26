@@ -278,6 +278,52 @@ describe("staticalize", () => {
       `<meta property="og:url" content="https://fs.com/image.png">`,
     );
   });
+
+  it("carries the path of the base url into every rewritten url", async () => {
+    app.get(
+      "/",
+      (c) =>
+        c.html(`
+<html>
+  <head>
+    <link rel="canonical" href="${host}"/>
+    <meta property="og:url" content="${host}image.png"/>
+    <script src="${host}main.js"></script>
+  </head>
+  <body></body>
+</html>
+`),
+    )
+      .get("/about", (c) => c.html("<h1>About</h1>"))
+      .get("/image.png", (c) => c.text(""))
+      .get("/main.js", (c) => c.text("console.log('hi')"))
+      .get(...sitemap(["/", "/about"]));
+
+    await staticalize({
+      base: new URL("https://frontside.com/effection"),
+      host,
+      dir: "test/dist",
+    });
+
+    let index = await content("test/dist/index.html");
+    expect(index).toContain(
+      `<link rel="canonical" href="https://frontside.com/effection/">`,
+    );
+    expect(index).toContain(
+      `<script src="https://frontside.com/effection/main.js">`,
+    );
+    expect(index).toContain(
+      `<meta property="og:url" content="https://frontside.com/effection/image.png">`,
+    );
+
+    let sitemapXML = await Deno.readTextFile("test/dist/sitemap.xml");
+    expect(sitemapXML).toContain(
+      "<loc>https://frontside.com/effection/</loc>",
+    );
+    expect(sitemapXML).toContain(
+      "<loc>https://frontside.com/effection/about</loc>",
+    );
+  });
 });
 
 async function content(path: string): Promise<string> {

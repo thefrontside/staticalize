@@ -45,6 +45,7 @@
       "main.ts",
       "staticalize.ts",
       "downloader.ts",
+      "rebase.ts",
       "task-buffer.ts",
       "config.ts",
       "progress.ts",

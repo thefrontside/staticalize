@@ -10,6 +10,7 @@ import { ensureDir } from "@std/fs/ensure-dir";
 import { stringify } from "@libs/xml/stringify";
 import { parse } from "@libs/xml/parse";
 import { useDownloader } from "./downloader.ts";
+import { rebase } from "./rebase.ts";
 
 export interface StaticalizeOptions {
   host: URL;
@@ -93,13 +94,9 @@ export function useStaticalizer(
           let xml = stringify({
             urlset: {
               "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
-              "url": [...urls].map((url) => {
-                let loc = new URL(url);
-                loc.host = base.host;
-                loc.port = base.port;
-                loc.protocol = base.protocol;
-                return { loc: { "#text": loc } };
-              }),
+              "url": [...urls].map((url) => ({
+                loc: { "#text": rebase(new URL(url), base) },
+              })),
             },
           });
           yield* call(() =>
