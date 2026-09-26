@@ -93,7 +93,7 @@ export function useStaticalizer(
           let xml = stringify({
             urlset: {
               "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
-              "urls": [...urls].map((url) => {
+              "url": [...urls].map((url) => {
                 let loc = new URL(url);
                 loc.host = base.host;
                 loc.port = base.port;
