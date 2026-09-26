@@ -23,6 +23,9 @@ describe("staticalize", () => {
     let listening = Promise.withResolvers<Deno.NetAddr>();
 
     server = Deno.serve({
+      // port 0 asks the os for a free port, so the suite does not collide with
+      // whatever happens to be on deno's default 8000
+      port: 0,
       onListen: (addr) => listening.resolve(addr),
     }, app.fetch);
 
@@ -67,10 +70,15 @@ describe("staticalize", () => {
       "<html><head></head><body><h1>Contact</h1></body></html>",
     );
 
-    let xml = parse(await Deno.readTextFile("test/dist/sitemap.xml"));
+    let text = await Deno.readTextFile("test/dist/sitemap.xml");
+
+    // entries are `<url>`, as https://www.sitemaps.org/protocol.html requires
+    expect(text).not.toContain("<urls>");
+
+    let xml = parse(text);
 
     //@ts-expect-error this is an unknown xml doc
-    let [one, two, three] = xml.urlset.urls.map((u) => u.loc);
+    let [one, two, three] = xml.urlset.url.map((u) => u.loc);
     expect([one, two, three]).toEqual([
       "https://frontside.com/",
       "https://frontside.com/about",
