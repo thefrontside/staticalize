@@ -36,8 +36,10 @@ export const config = program({
     },
     retries: {
       description:
-        "Number of times to retry a failed download before giving up. Defaults to 0 in strict mode.",
-      ...field(z.number()),
+        "Number of times to retry a failed download before giving up. Defaults to 3, or 0 in strict mode.",
+      // optional rather than defaulted: the default depends on --strict, which
+      // a field cannot see, so `main.ts` supplies it once both are parsed
+      ...field(z.number().optional()),
     },
   }),
 });
