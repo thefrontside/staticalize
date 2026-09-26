@@ -20,3 +20,43 @@ export function rebase(source: URL, base: URL): URL {
   url.pathname = `${base.pathname.replace(/\/$/, "")}${source.pathname}`;
   return url;
 }
+
+/**
+ * A TransformStream that replaces self-referencing urls with the public base.
+ *
+ * There is no document to walk in a text body, so unlike the html pass this is
+ * a substitution of the crawl origin rather than a rewrite of known
+ * url-bearing attributes. It runs over the response as it arrives, so the
+ * memory it holds is a chunk and change rather than the whole document.
+ */
+export class RebaseTextStream extends TransformStream<string, string> {
+  #carry = "";
+
+  constructor(host: URL, base: URL) {
+    let needle = host.origin;
+    // the crawl origin stands for the root of the site, so it maps onto the base
+    // the same way any other url does. the result carries a trailing slash, which
+    // the urls in the body bring themselves.
+    let prefix = `${rebase(new URL(needle), base)}`.replace(/\/$/, "");
+    // a match can straddle a chunk boundary, so hold back the longest partial
+    // one and let the next chunk complete it
+    let keep = needle.length - 1;
+
+    super({
+      transform: (chunk, controller) => {
+        let text = (this.#carry + chunk).replaceAll(needle, prefix);
+        if (text.length > keep) {
+          controller.enqueue(text.slice(0, text.length - keep));
+          this.#carry = text.slice(text.length - keep);
+        } else {
+          this.#carry = text;
+        }
+      },
+      flush: (controller) => {
+        if (this.#carry.length > 0) {
+          controller.enqueue(this.#carry);
+        }
+      },
+    });
+  }
+}

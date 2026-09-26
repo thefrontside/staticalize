@@ -25,6 +25,13 @@ This will read `https://localhost:800/sitemap.xml` and download the entire
 website to the `dist/` directory in a format that can be served from a simple
 file server running at `frontside.com`.
 
+Wherever your site refers to itself with an absolute url, staticalize replaces
+the `--site` origin with `--base`. It does this in html documents — `<a href>`,
+`<link href>`, and any `src` or `content` attribute — and in textual bodies such
+as `llms.txt`, markdown, feeds, json, css and javascript. Assets that are not
+text are copied byte for byte. This means `--base` is the only place a
+deployment has to say where it lives.
+
 ### CLI
 
 ```

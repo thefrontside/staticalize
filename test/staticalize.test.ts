@@ -324,6 +324,135 @@ describe("staticalize", () => {
       "<loc>https://frontside.com/effection/about</loc>",
     );
   });
+
+  it("replaces self-referencing urls in anchors", async () => {
+    app.get(
+      "/",
+      (c) => c.html(`<a href="${host}about">about</a>`),
+    )
+      .get("/about", (c) => c.html("<h1>About</h1>"))
+      .get(...sitemap(["/", "/about"]));
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(content("test/dist/index.html")).resolves.toContain(
+      `<a href="https://fs.com/about">about</a>`,
+    );
+  });
+
+  it("does not download pages that are only linked from an anchor", async () => {
+    app.get("/", (c) => c.html(`<a href="${host}unlisted">unlisted</a>`))
+      .get("/unlisted", (c) => c.html("<h1>Unlisted</h1>"))
+      .get(...sitemap(["/"]));
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(exists("test/dist/unlisted/index.html")).resolves.toEqual(
+      false,
+    );
+  });
+
+  it("replaces self-referencing urls in text bodies", async () => {
+    app.get("/llms.txt", (c) =>
+      c.text(`[API]: ${host}api.md\n`, 200, {
+        "Content-Type": "text/plain; charset=utf-8",
+      }))
+      .get("/AGENTS.md", (c) =>
+        c.text(`see ${host}api.md\n`, 200, {
+          "Content-Type": "text/markdown; charset=utf-8",
+        }))
+      .get("/feed.xml", (c) =>
+        c.text(`<link>${host}about</link>`, 200, {
+          "Content-Type": "application/rss+xml",
+        }))
+      .get("/data.json", (c) =>
+        c.text(`{"self":"${host}data.json"}`, 200, {
+          "Content-Type": "application/json",
+        }))
+      .get(
+        "/styles.css",
+        (c) =>
+          c.text(`body { background: url(${host}bg.png); }`, 200, {
+            "Content-Type": "text/css",
+          }),
+      )
+      .get(
+        ...sitemap([
+          "/llms.txt",
+          "/AGENTS.md",
+          "/feed.xml",
+          "/data.json",
+          "/styles.css",
+        ]),
+      );
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(content("test/dist/llms.txt")).resolves.toEqual(
+      "[API]: https://fs.com/api.md\n",
+    );
+    await expect(content("test/dist/AGENTS.md")).resolves.toEqual(
+      "see https://fs.com/api.md\n",
+    );
+    await expect(content("test/dist/feed.xml")).resolves.toEqual(
+      "<link>https://fs.com/about</link>",
+    );
+    await expect(content("test/dist/data.json")).resolves.toEqual(
+      `{"self":"https://fs.com/data.json"}`,
+    );
+    await expect(content("test/dist/styles.css")).resolves.toEqual(
+      "body { background: url(https://fs.com/bg.png); }",
+    );
+  });
+
+  it("carries the path of the base url into text bodies", async () => {
+    app.get("/llms.txt", (c) =>
+      c.text(`[API]: ${host}api.md\n`, 200, {
+        "Content-Type": "text/plain; charset=utf-8",
+      }))
+      .get(...sitemap(["/llms.txt"]));
+
+    await staticalize({
+      base: new URL("https://frontside.com/effection"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(content("test/dist/llms.txt")).resolves.toEqual(
+      "[API]: https://frontside.com/effection/api.md\n",
+    );
+  });
+
+  it("streams bodies that are not text byte for byte", async () => {
+    // a png that would be corrupted by a decode/encode round trip
+    let png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+    app.get("/logo.png", (c) =>
+      c.body(png.buffer, 200, {
+        "Content-Type": "image/png",
+      }))
+      .get(...sitemap(["/logo.png"]));
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    await expect(Deno.readFile("test/dist/logo.png")).resolves.toEqual(png);
+  });
 });
 
 async function content(path: string): Promise<string> {
