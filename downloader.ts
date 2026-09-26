@@ -11,6 +11,7 @@ import { fromHtml } from "hast-util-from-html";
 import { toHtml } from "hast-util-to-html";
 import { selectAll } from "hast-util-select";
 import { useTaskBuffer } from "./task-buffer.ts";
+import { rebase } from "./rebase.ts";
 import { createApi } from "@effectionx/context-api";
 
 export interface Downloader extends Operation<void> {
@@ -69,11 +70,7 @@ export const DownloadApi = createApi("@staticalize/download", {
 
           // replace self-referencing absolute urls with the destination site
           if (href.startsWith(host.origin)) {
-            let url = new URL(href);
-            url.host = base.host;
-            url.port = base.port;
-            url.protocol = base.protocol;
-            link.properties.href = url.href;
+            link.properties.href = rebase(new URL(href), base).href;
           }
         }
 
@@ -85,11 +82,7 @@ export const DownloadApi = createApi("@staticalize/download", {
 
           // replace self-referencing absolute urls with the destination site
           if (src.startsWith(host.origin)) {
-            let url = new URL(src);
-            url.host = base.host;
-            url.port = base.port;
-            url.protocol = base.protocol;
-            element.properties.src = url.href;
+            element.properties.src = rebase(new URL(src), base).href;
           }
         }
 
@@ -98,11 +91,7 @@ export const DownloadApi = createApi("@staticalize/download", {
           let attr = String(element.properties.content);
           if (attr.startsWith(host.origin)) {
             yield* downloader.download(attr, source);
-            let url = new URL(attr);
-            url.host = base.host;
-            url.port = base.port;
-            url.protocol = base.protocol;
-            element.properties.content = url.href;
+            element.properties.content = rebase(new URL(attr), base).href;
           }
         }
 
