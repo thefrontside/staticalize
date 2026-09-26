@@ -23,6 +23,9 @@ describe("staticalize", () => {
     let listening = Promise.withResolvers<Deno.NetAddr>();
 
     server = Deno.serve({
+      // port 0 asks the os for a free port, so the suite does not collide with
+      // whatever happens to be on deno's default 8000
+      port: 0,
       onListen: (addr) => listening.resolve(addr),
     }, app.fetch);
 
