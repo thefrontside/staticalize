@@ -22,21 +22,41 @@ export function rebase(source: URL, base: URL): URL {
 }
 
 /**
- * Replace self-referencing absolute urls in a text body with the public base.
+ * A TransformStream that replaces self-referencing urls with the public base.
  *
  * There is no document to walk in a text body, so unlike the html pass this is
  * a substitution of the crawl origin rather than a rewrite of known
- * url-bearing attributes.
- *
- * @param body text served by the crawled site
- * @param host url of the site being crawled
- * @param base public base url of the site, path included
- * @returns the body with every url on the crawled site pointing at the base
+ * url-bearing attributes. It runs over the response as it arrives, so the
+ * memory it holds is a chunk and change rather than the whole document.
  */
-export function rebaseText(body: string, host: URL, base: URL): string {
-  // the crawl origin stands for the root of the site, so it maps onto the base
-  // the same way any other url does. the result carries a trailing slash, which
-  // the urls in the body bring themselves.
-  let prefix = `${rebase(new URL(host.origin), base)}`.replace(/\/$/, "");
-  return body.replaceAll(host.origin, prefix);
+export class RebaseTextStream extends TransformStream<string, string> {
+  #carry = "";
+
+  constructor(host: URL, base: URL) {
+    let needle = host.origin;
+    // the crawl origin stands for the root of the site, so it maps onto the base
+    // the same way any other url does. the result carries a trailing slash, which
+    // the urls in the body bring themselves.
+    let prefix = `${rebase(new URL(needle), base)}`.replace(/\/$/, "");
+    // a match can straddle a chunk boundary, so hold back the longest partial
+    // one and let the next chunk complete it
+    let keep = needle.length - 1;
+
+    super({
+      transform: (chunk, controller) => {
+        let text = (this.#carry + chunk).replaceAll(needle, prefix);
+        if (text.length > keep) {
+          controller.enqueue(text.slice(0, text.length - keep));
+          this.#carry = text.slice(text.length - keep);
+        } else {
+          this.#carry = text;
+        }
+      },
+      flush: (controller) => {
+        if (this.#carry.length > 0) {
+          controller.enqueue(this.#carry);
+        }
+      },
+    });
+  }
 }

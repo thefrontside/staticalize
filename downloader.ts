@@ -11,7 +11,7 @@ import { fromHtml } from "hast-util-from-html";
 import { toHtml } from "hast-util-to-html";
 import { selectAll } from "hast-util-select";
 import { useTaskBuffer } from "./task-buffer.ts";
-import { rebase, rebaseText } from "./rebase.ts";
+import { rebase, RebaseTextStream } from "./rebase.ts";
 import { createApi } from "@effectionx/context-api";
 
 export interface Downloader extends Operation<void> {
@@ -116,15 +116,27 @@ export const DownloadApi = createApi("@staticalize/download", {
           bytes: new TextEncoder().encode(output).byteLength,
         };
       } else if (isTextual(response.headers.get("Content-Type"))) {
-        let content = yield* until(response.text());
-        let output = rebaseText(content, host, base);
+        let bytes = 0;
+        let counted = new TransformStream<Uint8Array, Uint8Array>({
+          transform(chunk, controller) {
+            bytes += chunk.byteLength;
+            controller.enqueue(chunk);
+          },
+        });
+
         let destdir = dirname(path);
         yield* until(ensureDir(destdir));
-        yield* until(Deno.writeTextFile(path, output));
-        return {
-          ok: true,
-          bytes: new TextEncoder().encode(output).byteLength,
-        };
+        yield* until(
+          Deno.writeFile(
+            path,
+            response.body!
+              .pipeThrough(new TextDecoderStream())
+              .pipeThrough(new RebaseTextStream(host, base))
+              .pipeThrough(new TextEncoderStream())
+              .pipeThrough(counted),
+          ),
+        );
+        return { ok: true, bytes };
       } else {
         let size = Number(response.headers.get("Content-Length") ?? 0);
         let destdir = dirname(path);
