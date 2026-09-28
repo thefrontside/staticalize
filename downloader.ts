@@ -178,7 +178,17 @@ function names(element: { properties?: Record<string, unknown> }): boolean {
   let rel = element.properties?.rel;
 
   if (Array.isArray(rel)) {
-    return rel.includes("canonical") || rel.includes("alternate");
+    if (rel.includes("canonical")) {
+      return true;
+    }
+
+    // `alternate` covers two unrelated things. With `hreflang` it is this page
+    // in another language, which is a claim about the page. Without it — a
+    // feed, an `llms.txt` — it points at a separate file, which lives wherever
+    // the build is served.
+    if (rel.includes("alternate")) {
+      return Boolean(element.properties?.hrefLang);
+    }
   }
 
   return element.properties?.property === "og:url";

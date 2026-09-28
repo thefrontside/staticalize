@@ -40,9 +40,9 @@ two answers to what had been one question: where the bytes are, and what the
 content is called.
 
 `--canonical` separates them. Urls that _name the page_ —
-`<link rel=canonical>`, its `<meta property="og:url">` twin, and
-`<link rel=alternate>` — are rebased onto it, while navigation, assets and the
-sitemap stay on `--base`:
+`<link rel=canonical>`, its `<meta property="og:url">` twin, and a
+`<link rel=alternate hreflang>` saying it for another language — are rebased
+onto it, while navigation, assets and the sitemap stay on `--base`:
 
 ```
 $ staticalize --site http://localhost:8000 --output dist \
@@ -53,6 +53,9 @@ $ staticalize --site http://localhost:8000 --output dist \
 The build still browses on its own at `--base`, and search engines are told to
 index `--canonical` instead. That is what a preview wants too: readable at its
 own alias, indexed as production.
+
+An `alternate` without `hreflang` is left on `--base`: a feed or an `llms.txt`
+is a separate file, and a file lives where the build is served.
 
 Textual bodies follow `--canonical`, because a document like `llms.txt` is a map
 telling a reader where the docs live rather than a page of the site.

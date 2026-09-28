@@ -463,6 +463,7 @@ describe("staticalize", () => {
   <head>
     <link rel="canonical" href="${host}"/>
     <link rel="alternate" href="${host}" hreflang="en"/>
+    <link rel="alternate" type="application/rss+xml" href="${host}feed.xml"/>
     <meta property="og:url" content="${host}"/>
     <meta property="og:image" content="${host}card.png"/>
     <link rel="stylesheet" href="${host}styles.css"/>
@@ -473,6 +474,7 @@ describe("staticalize", () => {
 `),
     )
       .get("/about", (c) => c.html("<h1>About</h1>"))
+      .get("/feed.xml", (c) => c.text("<rss/>"))
       .get("/card.png", (c) => c.text(""))
       .get("/styles.css", (c) => c.text("body {}"))
       .get("/main.js", (c) => c.text("console.log('hi')"))
@@ -499,6 +501,9 @@ describe("staticalize", () => {
     );
 
     // these point at bytes, which live where the build is hosted
+    expect(index).toContain(
+      `<link rel="alternate" type="application/rss+xml" href="https://interactors.netlify.app/feed.xml">`,
+    );
     expect(index).toContain(
       `<link rel="stylesheet" href="https://interactors.netlify.app/styles.css">`,
     );
