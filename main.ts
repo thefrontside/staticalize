@@ -18,8 +18,15 @@ await main(function* (args) {
     case "main": {
       let result = parser.parse();
       if (result.ok) {
-        let { base, site, output, strict, concurrency, retries: retriesRaw } =
-          result.value;
+        let {
+          base,
+          canonical,
+          site,
+          output,
+          strict,
+          concurrency,
+          retries: retriesRaw,
+        } = result.value;
         // don't have a great way to default dynamically based on strict mode
         let retries = retriesRaw ?? (strict ? 0 : 3);
 
@@ -33,6 +40,8 @@ await main(function* (args) {
 
         let staticalizer = yield* useStaticalizer({
           base: new URL(base),
+          // a site hosted where it is published says so by saying nothing
+          canonical: canonical ? new URL(canonical) : undefined,
           host: new URL(site),
           dir: output,
           strict,

@@ -32,6 +32,34 @@ as `llms.txt`, markdown, feeds, json, css and javascript. Assets that are not
 text are copied byte for byte. This means `--base` is the only place a
 deployment has to say where it lives.
 
+### Published somewhere other than where it is hosted
+
+A site is not always read at the address it is served from. Effection is hosted
+at `effection.netlify.app` and published at `frontside.com/effection`, which is
+two answers to what had been one question: where the bytes are, and what the
+content is called.
+
+`--canonical` separates them. Urls that _name the page_ —
+`<link rel=canonical>`, its `<meta property="og:url">` twin, and
+`<link rel=alternate>` — are rebased onto it, while navigation, assets and the
+sitemap stay on `--base`:
+
+```
+$ staticalize --site http://localhost:8000 --output dist \
+    --base=https://interactors.netlify.app \
+    --canonical=https://frontside.com/interactors
+```
+
+The build still browses on its own at `--base`, and search engines are told to
+index `--canonical` instead. That is what a preview wants too: readable at its
+own alias, indexed as production.
+
+Textual bodies follow `--canonical`, because a document like `llms.txt` is a map
+telling a reader where the docs live rather than a page of the site.
+
+`--canonical` defaults to `--base`, so a site hosted where it is published says
+so by saying nothing.
+
 ### CLI
 
 ```
@@ -43,6 +71,7 @@ Arguments:
 Options:
    --output <OUTPUT>         Directory to place the downloaded site [default: dist]
    --base <BASE>             Base URL of the public website. E.g. http://frontside.com
+   --canonical [CANONICAL]   Base URL the site is published at, when that differs from where it is hosted. Only canonical urls use it. Defaults to --base.
    --strict                  Fail on the first download error instead of collecting all failures and continuing [default: false]
    -h, --help                show help
    -v, --version             show version

@@ -21,6 +21,11 @@ export interface Downloader extends Operation<void> {
 export interface DownloaderOptions {
   host: URL;
   base: URL;
+  /**
+   * Base url the site is published at, when that differs from where it is
+   * hosted. Only urls that name the page use it. Defaults to `base`.
+   */
+  canonical?: URL;
   outdir: string;
   strict?: boolean;
   concurrency?: number;
@@ -38,7 +43,7 @@ export const DownloadApi = createApi("@staticalize/download", {
     source: URL,
     referrer: URL,
   ): Operation<DownloadResult> {
-    let { host, base, outdir, strict, retries = 3 } = opts;
+    let { host, base, canonical = base, outdir, strict, retries = 3 } = opts;
     let signal = yield* useAbortSignal();
     let path = normalize(join(outdir, source.pathname));
 
@@ -70,7 +75,8 @@ export const DownloadApi = createApi("@staticalize/download", {
 
           // replace self-referencing absolute urls with the destination site
           if (href.startsWith(host.origin)) {
-            link.properties.href = rebase(new URL(href), base).href;
+            link.properties.href =
+              rebase(new URL(href), names(link) ? canonical : base).href;
           }
         }
 
@@ -103,7 +109,8 @@ export const DownloadApi = createApi("@staticalize/download", {
           let attr = String(element.properties.content);
           if (attr.startsWith(host.origin)) {
             yield* downloader.download(attr, source);
-            element.properties.content = rebase(new URL(attr), base).href;
+            element.properties.content =
+              rebase(new URL(attr), names(element) ? canonical : base).href;
           }
         }
 
@@ -131,7 +138,11 @@ export const DownloadApi = createApi("@staticalize/download", {
             path,
             response.body!
               .pipeThrough(new TextDecoderStream())
-              .pipeThrough(new RebaseTextStream(host, base))
+              // a text body is a document about the site rather than a page of
+              // it — llms.txt tells an agent where the docs live, a feed tells
+              // a reader where the posts are — so its urls name the published
+              // site the way a canonical link does
+              .pipeThrough(new RebaseTextStream(host, canonical))
               .pipeThrough(new TextEncoderStream())
               .pipeThrough(counted),
           ),
@@ -153,6 +164,25 @@ export const DownloadApi = createApi("@staticalize/download", {
     }
   },
 });
+
+/**
+ * Does this element name the page, rather than point into the site?
+ *
+ * A canonical link, and the `og:url` that says the same thing in another
+ * vocabulary, claim where the content is *published*. That is the one address
+ * which does not move when a build is hosted somewhere else, so it is rebased
+ * onto `--canonical` while navigation and assets follow `--base`. An
+ * `alternate` makes the same claim on behalf of another language or format.
+ */
+function names(element: { properties?: Record<string, unknown> }): boolean {
+  let rel = element.properties?.rel;
+
+  if (Array.isArray(rel)) {
+    return rel.includes("canonical") || rel.includes("alternate");
+  }
+
+  return element.properties?.property === "og:url";
+}
 
 /**
  * Is this a content type whose body is text we can rewrite urls in?
