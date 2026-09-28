@@ -453,6 +453,123 @@ describe("staticalize", () => {
 
     await expect(Deno.readFile("test/dist/logo.png")).resolves.toEqual(png);
   });
+
+  it("sends urls that name the page to --canonical, and the rest to --base", async () => {
+    app.get(
+      "/",
+      (c) =>
+        c.html(`
+<html>
+  <head>
+    <link rel="canonical" href="${host}"/>
+    <link rel="alternate" href="${host}" hreflang="en"/>
+    <meta property="og:url" content="${host}"/>
+    <meta property="og:image" content="${host}card.png"/>
+    <link rel="stylesheet" href="${host}styles.css"/>
+    <script src="${host}main.js"></script>
+  </head>
+  <body><a href="${host}about">About</a></body>
+</html>
+`),
+    )
+      .get("/about", (c) => c.html("<h1>About</h1>"))
+      .get("/card.png", (c) => c.text(""))
+      .get("/styles.css", (c) => c.text("body {}"))
+      .get("/main.js", (c) => c.text("console.log('hi')"))
+      .get(...sitemap(["/", "/about"]));
+
+    await staticalize({
+      base: new URL("https://interactors.netlify.app"),
+      canonical: new URL("https://frontside.com/interactors"),
+      host,
+      dir: "test/dist",
+    });
+
+    let index = await content("test/dist/index.html");
+
+    // these name where the page is published
+    expect(index).toContain(
+      `<link rel="canonical" href="https://frontside.com/interactors/">`,
+    );
+    expect(index).toContain(
+      `<link rel="alternate" href="https://frontside.com/interactors/" hreflang="en">`,
+    );
+    expect(index).toContain(
+      `<meta property="og:url" content="https://frontside.com/interactors/">`,
+    );
+
+    // these point at bytes, which live where the build is hosted
+    expect(index).toContain(
+      `<link rel="stylesheet" href="https://interactors.netlify.app/styles.css">`,
+    );
+    expect(index).toContain(
+      `<script src="https://interactors.netlify.app/main.js">`,
+    );
+    expect(index).toContain(
+      `<a href="https://interactors.netlify.app/about">`,
+    );
+    expect(index).toContain(
+      `<meta property="og:image" content="https://interactors.netlify.app/card.png">`,
+    );
+
+    // the sitemap maps this deployment, so it stays on the host
+    let sitemapXML = await Deno.readTextFile("test/dist/sitemap.xml");
+    expect(sitemapXML).toContain("https://interactors.netlify.app/about");
+    expect(sitemapXML).not.toContain("frontside.com");
+  });
+
+  it("names the published site in text bodies", async () => {
+    app.get("/", (c) => c.html("<h1>Home</h1>"))
+      .get(
+        "/llms.txt",
+        (c) =>
+          c.text(`[Docs]: ${host}docs\n[Blog]: ${host}blog`, 200, {
+            "Content-Type": "text/plain",
+          }),
+      )
+      .get(...sitemap(["/", "/llms.txt"]));
+
+    await staticalize({
+      base: new URL("https://interactors.netlify.app"),
+      canonical: new URL("https://frontside.com/interactors"),
+      host,
+      dir: "test/dist",
+    });
+
+    // llms.txt tells an agent where the docs live, which is the published site
+    let llms = await content("test/dist/llms.txt");
+    expect(llms).toContain("https://frontside.com/interactors/docs");
+    expect(llms).toContain("https://frontside.com/interactors/blog");
+    expect(llms).not.toContain("netlify");
+  });
+
+  it("leaves everything on --base when --canonical is not given", async () => {
+    app.get(
+      "/",
+      (c) =>
+        c.html(`
+<html>
+  <head>
+    <link rel="canonical" href="${host}"/>
+    <script src="${host}main.js"></script>
+  </head>
+  <body></body>
+</html>
+`),
+    )
+      .get("/main.js", (c) => c.text("console.log('hi')"))
+      .get(...sitemap(["/"]));
+
+    await staticalize({
+      base: new URL("https://fs.com"),
+      host,
+      dir: "test/dist",
+    });
+
+    let index = await content("test/dist/index.html");
+    expect(index).toContain(`<link rel="canonical" href="https://fs.com/">`);
+    expect(index).toContain(`<script src="https://fs.com/main.js">`);
+  });
 });
 
 async function content(path: string): Promise<string> {

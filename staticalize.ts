@@ -15,6 +15,11 @@ import { rebase } from "./rebase.ts";
 export interface StaticalizeOptions {
   host: URL;
   base: URL;
+  /**
+   * Base url the site is published at, when that differs from where it is
+   * hosted. Only urls that name the page use it. Defaults to `base`.
+   */
+  canonical?: URL;
   dir: string;
   strict?: boolean;
   concurrency?: number;
@@ -29,7 +34,8 @@ export interface Staticalizer {
 export function useStaticalizer(
   options: StaticalizeOptions,
 ): Operation<Staticalizer> {
-  let { host, base, dir, strict, concurrency, retries } = options;
+  let { host, base, canonical = base, dir, strict, concurrency, retries } =
+    options;
 
   return resource(function* (provide) {
     let signal = yield* useAbortSignal();
@@ -75,6 +81,7 @@ export function useStaticalizer(
     let downloader = yield* useDownloader({
       host,
       base,
+      canonical,
       outdir: dir,
       strict,
       concurrency,
@@ -95,6 +102,8 @@ export function useStaticalizer(
             urlset: {
               "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
               "url": [...urls].map((url) => ({
+                // the sitemap maps this deployment, so it names where the
+                // pages are served rather than where they are published
                 loc: { "#text": rebase(new URL(url), base) },
               })),
             },

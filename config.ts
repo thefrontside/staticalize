@@ -24,6 +24,11 @@ export const config = program({
       description: "Base URL of the public website. E.g. http://frontside.com",
       ...field(url()),
     },
+    canonical: {
+      description:
+        "Base URL the site is published at, when that differs from where it is hosted. Only canonical urls use it. Defaults to --base.",
+      ...field(url().optional()),
+    },
     strict: {
       description:
         "Fail on the first download error instead of collecting all failures and continuing",
